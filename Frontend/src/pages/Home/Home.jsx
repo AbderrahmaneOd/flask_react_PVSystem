@@ -9,28 +9,20 @@ import Services from "../../components/Services";
 import Login from "../../components/auth/Login";
 import Registration from "../../components/auth/Register";
 import AdminDashboard from "../Dashbord/Dashboard";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 function Home() {
+
     return (
         <>
+        
           <Navbar />
-          
-          <Routes>
-            <Route path="/" element={<>
-              <Banner/>
-              <Services/>
-              <About/>
-              <Product/>
-              <Blog/>
-              <Newsletter/>          
-            </>} />
-    
-            <Route path="/register" element={<Registration />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          </Routes>
-          
+          <Banner/>
+          <Services/>
+          <About/>
+          <Product/>
+          <Blog/>
+          <Newsletter/>          
           <Footer/>
         </>
       );
