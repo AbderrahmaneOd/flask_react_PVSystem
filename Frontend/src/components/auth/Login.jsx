@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from "react";
 import axios from '../../api/axios';
+import { useNavigate } from 'react-router-dom';
 
 const LOGIN_URL = '/login';
 
@@ -9,7 +10,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errMsg, setErrMsg] = useState('');
-
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
@@ -22,10 +23,21 @@ const Login = () => {
           }
       );
       // Handle response
-      console.log(JSON.stringify(response?.data));
+      const { access_token, roles } = response?.data;
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('username', username);
+      localStorage.setItem('roles', JSON.stringify(roles));
+      
       // Clear form fields after successful registration
       setUsername('');
       setPassword('');
+
+      if (roles.includes('admin')) {
+        navigate('/admin-dashboard');
+      } else if (roles.includes('ai_manager') || roles.includes('researcher')) {
+        navigate('/ai-manager-dashboard');
+      }
+
     } catch (err) {
       if (!err?.response) {
         setErrMsg('No Server Response');

@@ -11,6 +11,7 @@ import Product from "./components/Product";
 import Services from "./components/Services";
 import Login from "./components/auth/Login";
 import Registration from "./components/auth/Register";
+import AdminDashboard from "./components/AdminDashboard/Dashboard";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -32,7 +33,7 @@ function App() {
 
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<Login />} />
-
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
       
       <MyFooter/>
