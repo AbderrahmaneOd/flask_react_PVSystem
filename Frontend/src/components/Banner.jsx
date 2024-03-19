@@ -5,7 +5,7 @@ import banner from "../assets/banner.png"
 
 
 
-const Home = () => {
+const Banner = () => {
   return (
     <div className=" bg-neutralSilver" id="home">
       <div className="px-4 lg:px-14 max-w-screen-2xl mx-auto min-h-screen h-screen flex justify-center items-center">
@@ -28,4 +28,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Banner;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+// import { Redirect } from 'react-router-dom';
+// import useAuth from '../../hooks/useAuth';
 
 
 /*
@@ -23,5 +23,11 @@ function AdminDashboard() {
     </div>
   );
 } */
-
+function AdminDashboard() {
+  return (
+    <div>
+      <h2>Welcome to Your Dashboard</h2>
+    </div>
+  );
+}
 export default AdminDashboard;
