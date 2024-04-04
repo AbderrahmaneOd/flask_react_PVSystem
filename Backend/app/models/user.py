@@ -1,8 +1,10 @@
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 client = MongoClient('mongodb://localhost:27017/')
 db = client['pfa']
 users_collection = db['users']
+counters_collection = db['counters']
 
 class User:
     def __init__(self, username, password, firstName, lastName, phone, email, roles=None):
@@ -15,7 +17,9 @@ class User:
         self.email = email
 
     def save(self):
+        user_id = self.get_next_sequence_value('user_id')
         users_collection.insert_one({
+            '_id': user_id,
             'username': self.username,
             'password': self.password,
             'roles': self.roles,
@@ -31,3 +35,13 @@ class User:
         if user_data:
             return User(user_data['username'], user_data['password'], user_data['roles'])
         return None
+
+    @staticmethod
+    def get_next_sequence_value(sequence_name):
+        sequence_document = counters_collection.find_one_and_update(
+            {'_id': sequence_name},
+            {'$inc': {'sequence_value': 1}},
+            upsert=True,
+            return_document=True
+        )
+        return sequence_document['sequence_value']

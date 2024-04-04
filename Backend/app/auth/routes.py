@@ -47,6 +47,7 @@ def login():
         return jsonify({'message': 'Invalid credentials'}), 401
 
     access_token = create_access_token(identity=username)
+    print("Token generated:", access_token)
 
     # Construct the response manually
     response = {
