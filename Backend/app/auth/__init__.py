@@ -6,14 +6,10 @@ bp = Blueprint('auth', __name__)
 
 ##############################################################################################################################################################################################""
 #CRUD-ADMIN-USERS
-from app.auth import bp
-from flask import jsonify, request
+from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.security import generate_password_hash, check_password_hash
-from app.models.user import User
+from werkzeug.security import generate_password_hash
 from pymongo import MongoClient
-
-
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -31,15 +27,15 @@ def retrieve_all_users():
     users = list(users_collection.find({}, {'_id': 0}))
     return jsonify(users)
 
-@bp.route('/users/<int:id>', methods=['GET'])
+@bp.route('/users/<string:username>', methods=['GET'])
 @jwt_required()
-def retrieve_user(id):
+def retrieve_user(username):
     current_user = get_jwt_identity()
     user = users_collection.find_one({'username': current_user})
     if 'admin' not in user['roles']:
         return jsonify({'message': 'Admin role required'}), 403
     
-    user = users_collection.find_one({"_id": id}, {'_id': 0})
+    user = users_collection.find_one({'username': username}, {'_id': 0})
     if user:
         return jsonify(user)
     else:
@@ -64,44 +60,41 @@ def create_user():
     hashed_password = generate_password_hash(password)
     
     # Create User
-    new_user = User(
-        username=username,
-        password=hashed_password,
-        roles=roles,
-        firstName=data.get('firstName'),
-        lastName=data.get('lastName'),
-        phone=data.get('phone'),
-        email=data.get('email')
-
-
-         
- 
-    )
-    new_user.save()
+    new_user = {
+        'username': username,
+        'password': hashed_password,
+        'roles': roles,
+        'firstName': data.get('firstName'),
+        'lastName': data.get('lastName'),
+        'phone': data.get('phone'),
+        'email': data.get('email')
+    }
+    users_collection.insert_one(new_user)
     return jsonify({'message': 'User registered successfully'}), 201
-@bp.route('/users/<int:id>', methods=['DELETE'])
+
+@bp.route('/users/<string:username>', methods=['DELETE'])
 @jwt_required()
-def delete_user(id):
+def delete_user(username):
     current_user = get_jwt_identity()
     user = users_collection.find_one({'username': current_user})
     if 'admin' not in user['roles']:
         return jsonify({'message': 'Admin role required'}), 403
-    result = users_collection.delete_one({"_id": id})
+    result = users_collection.delete_one({'username': username})
     if result.deleted_count:
         return jsonify({'message': 'User deleted successfully'})
     else:
         return jsonify({'message': 'User not found'}), 404
 
-@bp.route('/users/<int:id>', methods=['PUT'])
+@bp.route('/users/<string:username>', methods=['PUT'])
 @jwt_required()
-def update_user(id):
+def update_user(username):
     current_user = get_jwt_identity()
     user = users_collection.find_one({'username': current_user})
     if 'admin' not in user['roles']:
         return jsonify({'message': 'Admin role required'}), 403
     
     update_data = request.json
-    result = users_collection.update_one({'_id': id}, {"$set": update_data})
+    result = users_collection.update_one({'username': username}, {"$set": update_data})
     if result.modified_count:
         return jsonify({'message': 'User updated successfully'})
     else:

@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
+from datetime import timedelta
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -46,7 +47,10 @@ def login():
     if not user or not check_password_hash(user['password'], password):
         return jsonify({'message': 'Invalid credentials'}), 401
 
-    access_token = create_access_token(identity=username)
+    # Définir la durée de vie du token (par exemple, 7 jours)
+    expires_delta = timedelta(days=7)
+
+    access_token = create_access_token(identity=username, expires_delta=expires_delta)
     print("Token generated:", access_token)
 
     # Construct the response manually

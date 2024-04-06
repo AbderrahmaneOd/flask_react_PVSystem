@@ -17,12 +17,14 @@ const Registration = () => {
     e.preventDefault(); // Prevent the default form submission behavior
     try {
       const response = await axios.post(REGISTER_URL,
-          JSON.stringify({ username, password, firstName,
-          lastName, email, phone }),
-          {
-              headers: { 'Content-Type': 'application/json' },
-              withCredentials: true
-          }
+        JSON.stringify({
+          username, password, firstName,
+          lastName, email, phone
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
+        }
       );
       // Handle response
       console.log(JSON.stringify(response?.data));
@@ -35,11 +37,11 @@ const Registration = () => {
       setEmail('');
     } catch (err) {
       if (!err?.response) {
-          setErrMsg('No Server Response');
+        setErrMsg('No Server Response');
       } else if (err.response?.status === 409) {
-          setErrMsg('Username Taken');
+        setErrMsg('Username Taken');
       } else {
-          setErrMsg('Registration Failed')
+        setErrMsg('Registration Failed')
       }
     }
   }
@@ -181,10 +183,11 @@ const Registration = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brandPrimary hover:bg-neutralDGrey focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Register
               </button>
+
+
             </div>
           </form>
         </div>
