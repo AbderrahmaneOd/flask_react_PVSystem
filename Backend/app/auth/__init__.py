@@ -409,10 +409,56 @@ def generate_scatterplot():
     return jsonify({'scatterplot_image': image_base64}), 200
 
 
+##############################################################################################################################################################################################
+from flask import Blueprint, request, jsonify
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
+@bp.route('/send-email', methods=['POST'])
+def send_email():
+    data = request.get_json()
+    
+    #L'email de l'administrateur qui recevra toutes les réclamations des utilisateurs.     
+    recipient_email = 'webig21841@adstam.com'
+    nom = data.get('nom')
+    prenom = data.get('prenom')
+    email = data.get('email')
+    subject = data.get('subject')
+    message_body = data.get('message_body')
 
+    if not subject or not message_body:
+        return jsonify({'message': 'Veuillez fournir l\'adresse e-mail du destinataire, le sujet et le corps du message'}), 400
+    
+    # Formater le message
+    formatted_message = f"""Nom: {nom}
+    Prénom: {prenom}
+    Email: {email}
 
+    Message:
+    {message_body}"""
+
+    #L'e-mail qui sera utilisé pour contacter l'administrateur.
+    sender_email = 'mbelkarradi@gmail.com'
+    sender_password = 'jgmg dsol ncnb fkbu'
+
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(formatted_message, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(msg)
+        server.quit()
+        return jsonify({'message': 'Email envoyé avec succès'}), 200
+    except Exception as e:
+        return jsonify({'message': 'Une erreur s\'est produite lors de l\'envoi de l\'email', 'error': str(e)}), 500
 
 
 ##############################################################################################################################################################################################
