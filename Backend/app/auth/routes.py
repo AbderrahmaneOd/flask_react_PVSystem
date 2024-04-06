@@ -1,6 +1,6 @@
 from app.auth import bp
 from flask import jsonify, request
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity,unset_jwt_cookies
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
@@ -84,3 +84,14 @@ def admin_required(fn):
 @admin_required
 def admin_protected():
     return jsonify(message='This is an admin protected endpoint'), 200
+
+
+
+####################################LOGOUT#####################################################################
+@bp.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    current_user = get_jwt_identity()
+    response = jsonify({'message': 'Successfully logged out'})
+    unset_jwt_cookies(response)
+    return response, 200

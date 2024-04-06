@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./User.css";
 import { useParams, useNavigate } from "react-router-dom";
+import Sidebar from "../../../components/sidebar/Sidebar";
+import Navbar from "../../../components/navbar/Navbar";
 
 const User = () => {
   const navigate = useNavigate();
@@ -78,94 +80,97 @@ const User = () => {
   };
 
   return (
-    <div className="post__wrapper">
-      <div className="container">
-        <form className="post">
-          {/* Input fields for user details */}
-          <input
-            type="text"
-            placeholder="Nom d'utilisateur..."
-            name="username"
-            value={user.username}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            placeholder="Nom..."
-            name="lastName"
-            value={user.lastName}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            placeholder="Prénom..."
-            name="firstName"
-            value={user.firstName}
-            onChange={handleChange}
-          />
+    <div className="home">
+      <Sidebar />
+      <div className="homeContainer">
+        <Navbar />
+        <div className="post__wrapper">
+          <div className="container">
+            <form className="post">
+              <input
+                type="text"
+                placeholder="Nom d'utilisateur..."
+                name="username"
+                value={user.username}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                placeholder="Nom..."
+                name="lastName"
+                value={user.lastName}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                placeholder="Prénom..."
+                name="firstName"
+                value={user.firstName}
+                onChange={handleChange}
+              />
 
-          <input
-            type="text"
-            placeholder="Email..."
-            name="email"
-            value={user.email}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            placeholder="Phone..."
-            name="phone"
-            value={user.phone}
-            onChange={handleChange}
-          />
+              <input
+                type="text"
+                placeholder="Email..."
+                name="email"
+                value={user.email}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                placeholder="Phone..."
+                name="phone"
+                value={user.phone}
+                onChange={handleChange}
+              />
 
-          {/* Checkboxes for user roles */}
-          <div className="roles">
-            <label className="checkbox-label">
+              {/* Checkboxes for user roles */}
+              <div className="roles">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="admin"
+                    checked={user.roles.includes("admin")}
+                    onChange={handleRoleChange}
+                  />
+                  <span className="checkmark"></span>
+                  <span className="label">Admin</span>
+                </label>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="responsableAi"
+                    checked={user.roles.includes("responsableAi")}
+                    onChange={handleRoleChange}
+                  />
+                  <span className="checkmark"></span>
+                  <span className="label">Gestionnaire IA </span>
+                </label>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="researcher"
+                    checked={user.roles.includes("researcher")}
+                    onChange={handleRoleChange}
+                  />
+                  <span className="checkmark"></span>
+                  <span className="label">Chercheur</span>
+                </label>
+              </div>
+
               <input
-                type="checkbox"
-                name="admin"
-                checked={user.roles.includes("admin")}
-                onChange={handleRoleChange}
+                type="password"
+                placeholder="Mot de passe..."
+                name="password"
+                value={user.password}
+                onChange={handleChange}
               />
-              <span className="checkmark"></span>
-              <span className="label">Admin</span>
-            </label>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="responsableAi"
-                checked={user.roles.includes("responsableAi")}
-                onChange={handleRoleChange}
-              />
-              <span className="checkmark"></span>
-              <span className="label">Gestionnaire IA </span>
-            </label>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="researcher"
-                checked={user.roles.includes("researcher")}
-                onChange={handleRoleChange}
-              />
-              <span className="checkmark"></span>
-              <span className="label">Chercheur</span>
-            </label>
-            {/* Add more checkboxes for other roles as needed */}
+              <button onClick={handleSubmit} className="btn btn-primary">
+                {username === "new" ? "Créer l'utilisateur" : "Mettre à jour l'utilisateur"}
+              </button>
+            </form>
           </div>
-
-          <input
-            type="password"
-            placeholder="Mot de passe..."
-            name="password"
-            value={user.password}
-            onChange={handleChange}
-          />
-          {/* Button to submit form */}
-          <button onClick={handleSubmit} className="btn btn-primary">
-            {username === "new" ? "Créer l'utilisateur" : "Mettre à jour l'utilisateur"}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
