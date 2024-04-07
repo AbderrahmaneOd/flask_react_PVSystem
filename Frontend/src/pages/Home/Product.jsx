@@ -1,11 +1,11 @@
 import React from "react";
-import aboutImg from "../assets/mobile-login.png";
-import Maecenas from '../assets/maecenas.png'
+import aboutImg from "../../assets/mobile-login.png";
+import Maecenas from '../../assets/maecenas.png'
 
 // motion
 import { motion } from "framer-motion";
 // variants
-import { fadeIn } from "../variants";
+import { fadeIn } from "../../variants";
 
 const Product = () => {
   return (

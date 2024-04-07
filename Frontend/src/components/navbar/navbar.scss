@@ -1,7 +1,7 @@
 .navbar {
   margin-top: -20px;
 
-  height: 50px;
+  height: 70px;
   border-bottom: 0.5px solid rgb(231, 228, 228);
   display: flex;
   align-items: center;
@@ -25,6 +25,7 @@
         border: none;
         outline: none;
         background: transparent;
+        height: 15px;
 
         &::placeholder {
           font-size: 12px;

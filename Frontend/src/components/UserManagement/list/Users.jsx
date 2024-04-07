@@ -4,8 +4,6 @@ import axios from "axios";
 import "./Users.css";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
-import Sidebar from "../../../components/sidebar/Sidebar";
-import Navbar from "../../../components/navbar/Navbar";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -47,9 +45,7 @@ const Users = () => {
 
   return (
     <div className="home">
-      <Sidebar />
       <div className="homeContainer">
-        <Navbar />
         <div className="posts">
           <div className="container">
             {isAdmin && (

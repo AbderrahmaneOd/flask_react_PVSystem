@@ -4,7 +4,7 @@ import React from 'react';
 // motion
 import { motion } from "framer-motion";
 // variants
-import { fadeIn } from "../variants";
+import { fadeIn } from "../../variants";
 
 const Blog = () => {
     const blogs = [

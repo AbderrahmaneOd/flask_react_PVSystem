@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./User.css";
 import { useParams, useNavigate } from "react-router-dom";
-import Sidebar from "../../../components/sidebar/Sidebar";
-import Navbar from "../../../components/navbar/Navbar";
 
 const User = () => {
   const navigate = useNavigate();
@@ -81,9 +79,7 @@ const User = () => {
 
   return (
     <div className="home">
-      <Sidebar />
       <div className="homeContainer">
-        <Navbar />
         <div className="post__wrapper">
           <div className="container">
             <form className="post">

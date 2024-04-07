@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from '../assets/logo.png'
+import logo from '../../assets/logo.png'
 
 import { Link } from "react-scroll";
 import { Link as RouterLink } from "react-router-dom";

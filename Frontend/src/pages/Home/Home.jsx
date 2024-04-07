@@ -1,15 +1,11 @@
-import About from "../../components/About";
-import Blog from "../../components/Blog";
-import Footer from "../../components/Footer";
-import Banner from "../../components/Banner";
-import Navbar from "../../components/Navbar";
-import Newsletter from "../../components/Newsletter";
-import Product from "../../components/Product";
-import Services from "../../components/Services";
-import Login from "../../components/auth/Login";
-import Registration from "../../components/auth/Register";
-import AdminDashboard from "../Dashbord/Dashboard";
-import { Routes, Route } from 'react-router-dom';
+import About from "./About";
+import Blog from "./Blog";
+import Footer from "./Footer";
+import Banner from "./Banner";
+import Navbar from "./Navbar";
+import Newsletter from "./Newsletter";
+import Product from "./Product";
+import Services from "./Services";
 
 function Home() {
 

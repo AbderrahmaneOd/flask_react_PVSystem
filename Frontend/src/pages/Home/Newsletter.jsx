@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { fadeIn } from "../variants";
-import config from "../config.json";
+import { fadeIn } from "../../variants";
+import config from "../../config.json";
 const Newsletter = () => {
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
