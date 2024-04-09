@@ -1,39 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import SidebarResearcher from "../../components/sidebar/SidebarResearcher";
 import Navbar from "../../components/navbar/Navbar";
 import "./Dashboard.scss";
 import Stepper from "../../components/steps/ProcessingSteps";
 
 
-/*
-function AdminDashboard() {
-  const { isLoggedIn, isAdmin } = useAuth();
-
-  if (!isLoggedIn) {
-    // Redirect to login if user is not logged in
-    return <Redirect to="/" />;
-  }
-
-  if (!isAdmin) {
-    // Redirect to unauthorized page if user is not admin
-    return <Redirect to="/unauthorized" />;
-  }
-
-  return (
-    <div>
-      <h2>Welcome to Your Dashboard</h2>
-    </div>
-  );
-} */
-
-
-
-
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('tokenExpiration') > Date.now();
+    const roles = JSON.parse(localStorage.getItem('roles'));
+
+    if (!isLoggedIn) {
+      // Redirect to login if user is not logged in
+      navigate('/login');
+    } else if (!roles.includes('researcher')) {
+      // If user is not admin
+      navigate('/');
+    }
+  }, [navigate]);
 
   return (
     <div className="home">

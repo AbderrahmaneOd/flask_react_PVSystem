@@ -4,7 +4,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -47,17 +47,21 @@ def login():
     if not user or not check_password_hash(user['password'], password):
         return jsonify({'message': 'Invalid credentials'}), 401
 
-    # Définir la durée de vie du token (par exemple, 7 jours)
-    expires_delta = timedelta(days=7)
+    # Définir la durée de vie du token
+    expires_delta = timedelta(hours=2)
+
+    # Calculate the token expiration time
+    token_expiration = datetime.utcnow() + expires_delta
 
     access_token = create_access_token(identity=username, expires_delta=expires_delta)
-    print("Token generated:", access_token)
 
     # Construct the response manually
     response = {
-        "access_token": access_token,
         "username": user['username'],
-        "roles": user['roles']
+        "roles": user['roles'],
+        "access_token": access_token,
+        # "tokenExpiration": token_expiration.strftime("%Y-%m-%d %H:%M:%S")
+        "tokenExpiration": int(token_expiration.timestamp() * 1000)
     }
 
     return jsonify(response), 200
@@ -86,8 +90,6 @@ def admin_protected():
     return jsonify(message='This is an admin protected endpoint'), 200
 
 
-
-####################################LOGOUT#####################################################################
 @bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():

@@ -1,55 +1,88 @@
 import React from 'react';
-import { useState } from "react";
 import axios from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LOGIN_URL = '/login';
 
 const Login = () => {
-  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errMsg, setErrMsg] = useState('');
+  const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [roles, setRoles] = useState([]);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('tokenExpiration') > Date.now();
+    const roles = JSON.parse(localStorage.getItem('roles'));
+
+    if (isLoggedIn && roles.includes('admin')) {
+      navigate('/admin');
+    } else if (isLoggedIn && roles.includes('ai_manager')) {
+      navigate('/manager');
+    } else if (isLoggedIn && roles.includes('researcher')) {
+      navigate('/researcher');
+    }
+
+  }, [navigate]);
+
+  // Function to handle login form submission
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    // Assuming you have an authentication API endpoint
     try {
       const response = await axios.post(LOGIN_URL,
-          JSON.stringify({ username, password }),
-          {
-              headers: { 'Content-Type': 'application/json' },
-              withCredentials: true
-          }
+        JSON.stringify({ username, password }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
+        }
       );
+
+
+      //console.log(response);
+
       // Handle response
-      const { access_token, roles } = response?.data;
+      const { access_token, tokenExpiration, roles } = response?.data;
       localStorage.setItem('token', access_token);
       localStorage.setItem('username', username);
       localStorage.setItem('roles', JSON.stringify(roles));
-      
+      localStorage.setItem('tokenExpiration', tokenExpiration);
+
+      //console.log(tokenExpiration);
+
+      // Set the user in the application state
+      setIsLoggedIn(true);
+      setRoles(roles);
+
+      //console.log(roles);
+
+      if (roles.includes('admin')) {
+        navigate('/admin');
+      } else if (roles.includes('ai_manager')) {
+        navigate('/manager');
+      } else if (roles.includes('researcher')) {
+        navigate('/researcher');
+      }
+
       // Clear form fields after successful registration
       setUsername('');
       setPassword('');
 
-      if (roles.includes('admin')) {
-        navigate('/admin-dashboard');
-      } else if (roles.includes('ai_manager') || roles.includes('researcher')) {
-        navigate('/ai-manager-dashboard');
-      }
-
-    } catch (err) {
-      if (!err?.response) {
-        setErrMsg('No Server Response');
-      } else if (err.response?.status === 400) {
-          setErrMsg('Missing Username or Password');
-      } else if (err.response?.status === 401) {
-          setErrMsg('Unauthorized');
+    } catch (error) {
+      if (!error?.response) {
+        setError('No Server Response');
+      } else if (error.response?.status === 400) {
+        setError('Missing Username or Password');
+      } else if (error.response?.status === 401) {
+        setError('Unauthorized');
       } else {
-          setErrMsg('Login Failed');
+        setError('Login Failed');
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -57,7 +90,7 @@ const Login = () => {
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in</h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit} method="POST">
+        <form className="mt-8 space-y-6" onSubmit={handleLogin} method="POST">
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>

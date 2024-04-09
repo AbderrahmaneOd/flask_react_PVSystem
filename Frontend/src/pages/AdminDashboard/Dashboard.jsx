@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { Routes, Route } from "react-router-dom";
 import Sidebar from "../../components/sidebar/SidebarAdmin";
 import Navbar from "../../components/navbar/Navbar";
 import "./Dashboard.scss";
@@ -14,22 +14,20 @@ import User from '../../components/UserManagement/list/User';
 
 
 const Dashboard = () => {
-  /*
   const navigate = useNavigate();
-  const { isLoggedIn, isAdmin } = useAuth();
 
   useEffect(() => {
-    console.log("isLoggedIn:", isLoggedIn);
-    console.log("isAdmin:", isAdmin);
+    const isLoggedIn = localStorage.getItem('token') !== null && localStorage.getItem('tokenExpiration') > Date.now();
+    const roles = JSON.parse(localStorage.getItem('roles'));
+
     if (!isLoggedIn) {
       // Redirect to login if user is not logged in
       navigate('/login');
-    } else if (!isAdmin) {
-      // Redirect to unauthorized page if user is not admin
+    } else if (!roles.includes('admin')) {
+      // If user is not admin
       navigate('/');
     }
-  }, [isLoggedIn, isAdmin, navigate]); // Dependencies for the effect
-  */
+  }, [navigate]);
 
   return (
     <div className="home">

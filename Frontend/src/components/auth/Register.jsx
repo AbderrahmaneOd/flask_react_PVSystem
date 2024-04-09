@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from '../../api/axios';
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const REGISTER_URL = '/register';
 
@@ -12,6 +13,7 @@ const Registration = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [errMsg, setErrMsg] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
@@ -35,6 +37,9 @@ const Registration = () => {
       setLastName('');
       setPhone('');
       setEmail('');
+
+      navigate("/login");
+
     } catch (err) {
       if (!err?.response) {
         setErrMsg('No Server Response');

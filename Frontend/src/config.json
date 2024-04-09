@@ -1,4 +1,3 @@
 {
-    "apiUrl":"http://localhost:5000",
-    "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxMjM2Njg4MCwianRpIjoiMWY0OTA1NzYtMWRkMC00MWYxLThiZWYtNWY5NjU0YzI3ZWM4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImJlbGsiLCJuYmYiOjE3MTIzNjY4ODAsImNzcmYiOiJlY2JlNmJiNy1jZGZmLTRmYmYtYjc5YS0zNTJkYWJkMzg2N2YiLCJleHAiOjE3MTIzNjc3ODB9.7Hswk65JYZ1ArG_d6iyXKt-DgIam6hWhngVKw-xYE7Y"
+    "apiUrl":"http://localhost:5000"
 }

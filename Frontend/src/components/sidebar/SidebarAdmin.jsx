@@ -12,11 +12,26 @@ import SettingsSystemDaydreamOutlinedIcon from "@mui/icons-material/SettingsSyst
 import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
-//import { DarkModeContext } from "../../context/darkModeContext";
 import { useContext } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
-  const handleLogout = () => {localStorage.removeItem("token");};
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+
+    //console.log(localStorage.getItem('username'))
+    //console.log(localStorage.getItem('token'))
+    //console.log(localStorage.getItem('roles'))
+
+    // Clear authentication-related data from local storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('roles');
+  
+    // Redirect to the login page
+    navigate('/login');
+  };
   
   return (
     <div className="sidebar">
@@ -84,12 +99,10 @@ const Sidebar = () => {
             <AccountCircleOutlinedIcon className="icon" />
             <span>Profile</span>
           </li>
-          <Link to="/login"  style={{ textDecoration: "none" }}>
           <li onClick={handleLogout}>
             <ExitToAppIcon className="icon" />
             <span>Logout</span>
           </li>
-          </Link>
         </ul>
       </div>
     </div>
