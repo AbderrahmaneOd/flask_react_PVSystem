@@ -5,6 +5,7 @@ import pandas as pd
 from io import StringIO
 from bson import ObjectId 
 import csv
+from datetime import datetime, timedelta
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -33,7 +34,7 @@ def upload_file():
     csv_data = pd.read_csv(csv_stream)
 
     # Fill missing values with 0
-    csv_data.fillna(0, inplace=True)
+    #csv_data.fillna(0, inplace=True)
 
     
     json_data = csv_data.to_dict(orient='records')
@@ -50,54 +51,113 @@ def upload_file():
     # Return success message with inserted IDs
     return jsonify({'message': 'Data stored in MongoDB'})
 
+@bp.route('/upload', methods=['POST'])
+def upload_csv():
 
-@bp.route('/files', methods=['GET'])
-def get_files():
-    # Retrieve data from MongoDB
-    cursor = files_collection.find({})  # Retrieve all documents in the collection
-    files_data = list(cursor)  # Convert cursor to a list of dictionaries
+    if 'file' not in request.files:
+        return 'No file part', 400
     
-    # Convert ObjectId objects to string representation
-    for file_data in files_data:
-        file_data['_id'] = str(file_data['_id'])
+    file = request.files['file']
+
+    if file.filename == '':
+        return 'No selected file', 400
+    
+    df = pd.read_csv(file)
+
+    # Drop the first column
+    df = df.iloc[:, 1:]
+    
+    # Calculate percentage of NaN values in each column
+    nan_percentages = df.isna().mean() * 100
+    
+    # Convert NaN percentages to dictionary
+    nan_percentages_dict = nan_percentages.to_dict()
+
+    # Fill missing values with 0
+    df.fillna(0, inplace=True)
+
+    # Convert DataFrame to list of dictionaries
+    data = df.to_dict(orient='records')
+
+    # Insert data into MongoDB
+    files_collection.insert_many(data)
+    
+    return jsonify(nan_percentages_dict)
+
+
+@bp.route('/files', methods=['POST'])
+def get_files():
+    # Get the username from the request data
+    data = request.get_json()
+    username = data.get('username')
+    
+    # Retrieve data from MongoDB
+    cursor = files_collection.find({'username': username}, {'_id' : 0, 'Wind_Speed': 0, 'username' : 0 })
+    files_data = list(cursor)  # Convert cursor to a list of dictionaries
 
     # Return the data in JSON format
     return jsonify(files_data)
 
 
-from datetime import datetime, timedelta
 
-@bp.route('/files', methods=['GET'])
-def get_files_period():
-    # Retrieve period from query parameter
-    selected_period = request.args.get('period')
+@bp.route('/delete', methods=['GET'])
+def delete_files():
+    files_collection.delete_many({})
+    return jsonify({'message': 'Data deleted in MongoDB'})
+
+
+
+@bp.route('/test-up', methods=['POST'])
+def upload_test():
+    # Get the uploaded file
+    uploaded_file = request.files['file']
     
-    # Define the query based on the selected period
-    if selected_period:
-        if selected_period.endswith('d'):  # day
-            period = int(selected_period[:-1])
-            start_date = datetime.now() - timedelta(days=period)
-            query = {'timestamp': {'$gte': start_date}}
-        elif selected_period.endswith('m'):  # month
-            period = int(selected_period[:-1])
-            start_date = datetime.now() - timedelta(days=30*period)
-            query = {'timestamp': {'$gte': start_date}}
-        elif selected_period.endswith('y'):  # year
-            period = int(selected_period[:-1])
-            start_date = datetime.now() - timedelta(days=365*period)
-            query = {'timestamp': {'$gte': start_date}}
-        else:
-            return 'Invalid period format. Use d for day, m for month, or y for year', 400
-    else:
-        query = {}
+    # Get the username from the request data
+    username = request.form['username']
+    
+    # Read the uploaded CSV file into a pandas DataFrame
+    df = pd.read_csv(uploaded_file)
 
-    # Retrieve data from MongoDB based on the query
-    cursor = files_collection.find(query)
+    # Drop the first column (Unnamed column)
+    df = df.iloc[:, 1:]
+
+    # Add the username column to the DataFrame
+    df['username'] = username
+
+    # Convert DataFrame to list of dictionaries
+    data = df.to_dict(orient='records')
+
+    # Insert data into MongoDB
+    files_collection.insert_many(data)
+
+    return jsonify({'message': 'Data stored in MongoDB'})
+
+@bp.route('/NaNvalue')
+def delete_NaN():
+    # Retrieve all documents in the collection
+    cursor = files_collection.find({})
+
+    # Convert cursor to a list of dictionaries
     files_data = list(cursor)
 
-    # Convert ObjectId objects to string representation
-    for file_data in files_data:
-        file_data['_id'] = str(file_data['_id'])
+    # Convert the list of dictionaries to a DataFrame
+    df = pd.DataFrame(files_data)
+
+    # Calculate percentage of NaN values in each column
+    nan_percentages = df.isna().mean() * 100
+    
+    # Convert NaN percentages to dictionary
+    nan_percentages_dict = nan_percentages.to_dict()
+
+    # Fill missing values with 0
+    #df.fillna(0, inplace=True)
+
+    # Convert DataFrame to list of dictionaries
+    #data = df.to_dict(orient='records')
+
+    # Replace the entire collection with the new data
+   # files_collection.delete_many({})  # Remove existing documents
+    #files_collection.insert_many(data)  # Insert updated documents
 
     # Return the data in JSON format
-    return jsonify(files_data)
+    return jsonify(nan_percentages_dict)

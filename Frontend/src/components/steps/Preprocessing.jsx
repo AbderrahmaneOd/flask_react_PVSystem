@@ -1,16 +1,13 @@
-import { useStepperContext } from "../../contexts/StepperContext";
+import UnivariateOutliers from './../charts/UnivariateOutliers'
+import NaNValues from './../charts/NaNValues'
 
-export default function Preprocessing() {
-  const { userData, setUserData } = useStepperContext();
-  const { file, setFile } = useStepperContext();
+export default function Preprocessing () {
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
-  };
   return (
     <div className="flex flex-col ">
-      
+      <h2 className="text-xl font-semibold mb-4">Percentage of Nan values</h2>
+      <NaNValues />
+      <UnivariateOutliers />
     </div>
   );
 }

@@ -19,7 +19,8 @@ const ChartComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/files');
+        const dataToSend = {"username" : localStorage.getItem('username')};
+        const response = await axios.post('http://localhost:5000/files', dataToSend);
 
         const data = response.data.filter(entry => {
           const temperature = entry.Weather_Temperature_Celsius;

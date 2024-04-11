@@ -23,8 +23,9 @@ const ChartComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/files');
-
+        const dataToSend = {"username" : localStorage.getItem('username')};
+        const response = await axios.post('http://localhost:5000/files', dataToSend);
+        //console.log(dataToSend);
         const data = response.data;
 
         // Filter data within the selected date range

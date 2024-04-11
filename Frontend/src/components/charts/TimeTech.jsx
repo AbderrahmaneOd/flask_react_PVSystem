@@ -16,7 +16,9 @@ const ChartComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/files');
+        const dataToSend = {"username" : localStorage.getItem('username')};
+        const response = await axios.post('http://localhost:5000/files', dataToSend);
+        
         const data = response.data;
 
         // Group data by panel technology and calculate average power production
@@ -97,16 +99,7 @@ const ChartComponent = () => {
         </select>
       </div>
       <div style={{ height: '300px', width: '600px' }}>
-        <Bar data={chartData} options={{
-          scales: {
-            xAxes: [{
-              stacked: true
-            }],
-            yAxes: [{
-              stacked: true
-            }]
-          }
-        }} />
+        <Bar data={chartData} />
       </div>
     </div>
   );

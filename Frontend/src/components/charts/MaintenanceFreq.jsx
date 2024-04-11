@@ -12,7 +12,9 @@ const MaintenanceFrequencyChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/files'); // Assuming the endpoint for maintenance data
+        const dataToSend = {"username" : localStorage.getItem('username')};
+        const response = await axios.post('http://localhost:5000/files', dataToSend);
+        
         const data = response.data;
 
         // Group maintenance data by time period
