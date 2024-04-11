@@ -1,0 +1,7 @@
+# Byte-compiled / optimized / DLL files
+Backend/__pycache__/
+Backend/*.py[cod]
+Backend/*$py.class
+
+# Compiled Python files
+*.pyc
