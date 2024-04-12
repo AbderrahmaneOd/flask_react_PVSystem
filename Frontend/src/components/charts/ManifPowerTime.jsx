@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 
-const ChartComponent = () => {
+const ChartComponent = ({ data }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -11,14 +10,8 @@ const ChartComponent = () => {
   const [grouping, setGrouping] = useState('day');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const dataToSend = {"username" : localStorage.getItem('username')};
-        const response = await axios.post('http://localhost:5000/files', dataToSend);
-        
-        const data = response.data;
 
-        // Group data by panel manuf and calculate average power production
+    // Group data by panel manuf and calculate average power production
         const averagePowerByManuf = {};
 
         data.forEach((item) => {
@@ -68,13 +61,8 @@ const ChartComponent = () => {
           labels: techLabels,
           datasets: datasets,
         });
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
 
-    fetchData();
-  }, [grouping]);
+  }, [grouping, data]);
 
   const handleGroupingChange = (event) => {
     setGrouping(event.target.value);

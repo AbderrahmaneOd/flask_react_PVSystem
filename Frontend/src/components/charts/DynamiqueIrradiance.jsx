@@ -1,53 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Scatter } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-const ChartComponent = () => {
+const ChartComponent = ({ data }) => {
+  
   const [chartData, setChartData] = useState({
-    datasets: [
-      {
-        label: 'Active Power vs Global Horizontal Radiation',
-        data: [],
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-    ],
+    datasets: [],
   });
-
   const [filterMin, setFilterMin] = useState(0);
-  const [filterMax, setFilterMax] = useState(5);
+  const [filterMax, setFilterMax] = useState(2000);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const dataToSend = {"username" : localStorage.getItem('username')};
-        const response = await axios.post('http://localhost:5000/files', dataToSend);
 
-        const data = response.data;
+    const scatterData = data.map(entry => ({
+      x: entry.Global_Horizontal_Radiation,
+      y: entry.Active_Power,
+    }));
 
-        const scatterData = data.map(entry => ({
-          x: entry.Global_Horizontal_Radiation,
-          y: entry.Active_Power,
-        }));
-
-        setChartData({
-          datasets: [
-            {
-              label: 'Active Power vs Global Horizontal Radiation',
-              data: scatterData,
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            },
-          ],
-        });
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+    setChartData({
+      datasets: [
+        {
+          label: 'Active Power vs Global Horizontal Radiation',
+          data: scatterData,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        },
+      ],
+    });
+  }, [data]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -58,9 +39,9 @@ const ChartComponent = () => {
     }
   };
 
-  const filteredData = chartData.datasets[0].data.filter(point =>
+  const filteredData = chartData.datasets.length > 0 ? chartData.datasets[0].data.filter(point =>
     point.x >= filterMin && point.x <= filterMax
-  );
+  ) : [];
 
   return (
     <div className="p-4 border border-gray-300 rounded-lg">

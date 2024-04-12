@@ -1,53 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Scatter } from 'react-chartjs-2';
 import Slider from '@mui/material/Slider';
 
-const ChartComponent = () => {
+const ChartComponent = ({ data }) => {
   const [chartData, setChartData] = useState({
-    datasets: [
-      {
-        label: 'Impact of Temperature on Power Output',
-        data: [],
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-    ],
+    datasets: [],
   });
 
   const [temperatureRange, setTemperatureRange] = useState([0, 100]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const dataToSend = {"username" : localStorage.getItem('username')};
-        const response = await axios.post('http://localhost:5000/files', dataToSend);
 
-        const data = response.data.filter(entry => {
-          const temperature = entry.Weather_Temperature_Celsius;
-          return temperature >= temperatureRange[0] && temperature <= temperatureRange[1];
-        });
 
-        const scatterData = data.map(entry => ({
-          x: entry.Weather_Temperature_Celsius,
-          y: entry.Active_Power,
-        }));
+    const data2 = data.filter(entry => {
+      const temperature = entry.Weather_Temperature_Celsius;
+      return temperature >= temperatureRange[0] && temperature <= temperatureRange[1];
+    });
 
-        setChartData({
-          datasets: [
-            {
-              label: 'Active Power vs Temperature',
-              data: scatterData,
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            },
-          ],
-        });
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    const scatterData = data2.map(entry => ({
+      x: entry.Weather_Temperature_Celsius,
+      y: entry.Active_Power,
+    }));
 
-    fetchData();
-  }, [temperatureRange]);
+    setChartData({
+      datasets: [
+        {
+          label: 'Active Power vs Temperature',
+          data: scatterData,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        },
+      ],
+    });
+
+  }, [temperatureRange, data]);
 
   const handleTemperatureChange = (event, newValue) => {
     setTemperatureRange(newValue);

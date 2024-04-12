@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 
-const MaintenanceFrequencyChart = () => {
+const MaintenanceFrequencyChart = ({ data }) => {
   const [maintenanceData, setMaintenanceData] = useState({
     labels: [],
     datasets: [],
@@ -10,13 +9,7 @@ const MaintenanceFrequencyChart = () => {
   const [grouping, setGrouping] = useState('month');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const dataToSend = {"username" : localStorage.getItem('username')};
-        const response = await axios.post('http://localhost:5000/files', dataToSend);
         
-        const data = response.data;
-
         // Group maintenance data by time period
         const maintenanceFrequency = {};
 
@@ -59,13 +52,8 @@ const MaintenanceFrequencyChart = () => {
             }
           ],
         });
-      } catch (error) {
-        console.error('Error fetching maintenance data:', error);
-      }
-    };
 
-    fetchData();
-  }, [grouping]);
+  }, [grouping, data]);
 
   const handleGroupingChange = (event) => {
     setGrouping(event.target.value);

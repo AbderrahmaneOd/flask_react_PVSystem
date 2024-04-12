@@ -33,6 +33,10 @@ const ChartComponent = ({ label, data }) => {
                                 enabled: true
                             },
                             mode: 'xy',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
                         }
                     }
                 }
@@ -47,7 +51,7 @@ const ChartComponent = ({ label, data }) => {
     return (
         <div>
             <h3 className="text-lg font-semibold mb-2">{label}</h3>
-            <div style={{ height: '300px', width: '100%' }}>
+            <div>
                 <canvas id={label}></canvas>
             </div>
         </div>
