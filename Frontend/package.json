@@ -19,6 +19,7 @@
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.2",
+    "chartjs-plugin-zoom": "^2.0.1",
     "flowbite-react": "^0.7.3",
     "framer-motion": "^11.0.14",
     "papaparse": "^5.4.1",

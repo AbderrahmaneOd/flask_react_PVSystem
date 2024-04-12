@@ -34,32 +34,56 @@ def get_outliers():
         "Global_Horizontal_Radiation": {"min": None, "q1": None, "median": None, "q3": None, "max": None, "outliers": []},
         "Weather_Daily_Rainfall": {"min": None, "q1": None, "median": None, "q3": None, "max": None, "outliers": []}
     }
-    
 
-    # Extract values for each field and append to the statistics dictionary
-    for file_data in files_data:
-        for field, value in file_data.items():
-            if field in statistics:  # Only process relevant weather fields
-                statistics[field]["min"] = min(value, statistics[field]["min"]) if statistics[field]["min"] is not None else value
-                statistics[field]["q1"] = np.percentile(value, 25) if statistics[field]["q1"] is not None else value
-                statistics[field]["median"] = np.median(value) if statistics[field]["median"] is not None else value
-                statistics[field]["q3"] = np.percentile(value, 75) if statistics[field]["q3"] is not None else value
-                statistics[field]["max"] = max(value, statistics[field]["max"]) if statistics[field]["max"] is not None else value
+    fields_to_retrieve = [
+        'Weather_Temperature_Celsius',
+        'Weather_Relative_Humidity',
+        'Global_Horizontal_Radiation',
+        'Weather_Daily_Rainfall'
+    ]
 
-    # Calculate outliers for each field
-    for field, values in statistics.items():
-        if values["min"] is not None and values["max"] is not None:
-            lower_bound = values["q1"] - 1.5 * (values["q3"] - values["q1"])
-            upper_bound = values["q3"] + 1.5 * (values["q3"] - values["q1"])
-            # Filter data points for the current field
-            field_values = [file_data[field] for file_data in files_data if field in file_data]
-            outliers = [value for value in field_values if value < lower_bound or value > upper_bound]
-            statistics[field]["outliers"] = outliers
+    # Extract values for each field and calculate statistics
+    for field in fields_to_retrieve:
+        values = [file_data[field] for file_data in files_data if field in file_data]
+        statistics[field] = calculate_statistics(values)
+
+         # Identify outliers based on quartiles
+        q1 = statistics[field]["q1"]
+        q3 = statistics[field]["q3"]
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        #print(lower_bound)
+        #print(upper_bound)
+        outliers = [value for value in values if value < lower_bound or value > upper_bound]
+        #print(outliers)
+        statistics[field]["outliers"] = outliers
+        
 
     
     # Return the statistical values in JSON format
     return jsonify(statistics)
 
+def calculate_statistics(data):
+    # Sort the data
+    sorted_data = sorted(data)
+
+    # Calculate quartiles
+    q1 = np.percentile(sorted_data, 25)
+    q3 = np.percentile(sorted_data, 75)
+    median = np.median(sorted_data)
+
+    # Calculate min and max
+    minimum = min(sorted_data)
+    maximum = max(sorted_data)
+
+    return {
+        "min": minimum,
+        "max": maximum,
+        "q1": q1,
+        "q3": q3,
+        "median": median,
+    }
 
 @bp.route('/NaNvalue')
 def delete_NaN():
@@ -97,7 +121,7 @@ def process_nanvalues():
         # Receive data from the frontend
         nan_values = request.json
 
-        print(nan_values)
+        #print(nan_values)
 
         # Retrieve all documents in the collection
         cursor = files_collection.find({})

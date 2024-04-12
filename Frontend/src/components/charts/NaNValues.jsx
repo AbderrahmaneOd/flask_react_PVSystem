@@ -27,7 +27,7 @@ const ChartComponent = () => {
 
                 const data = response.data;
 
-                console.log(data);
+                //console.log(data);
                 //console.log("Test");
 
                 const filteredColumns = Object.keys(data).filter(key => data[key] !== 0);
