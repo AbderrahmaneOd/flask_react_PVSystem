@@ -9,12 +9,8 @@ export default function Upload() {
         const fetchData = async () => {
             try {
                 if (selectedFile) {
-                    axios.post('http://localhost:5000//test-up', selectedFile)
+                    axios.post('http://localhost:5000/upload', selectedFile)
                         .then(response => {
-                            //console.log(response.data);
-                            //console.log(localStorage.getItem('username'));
-
-                           // onCsvData(response.data); // Pass data to parent
 
                             // Display success message using a state variable
                             setSuccessMessage('Uploaded');

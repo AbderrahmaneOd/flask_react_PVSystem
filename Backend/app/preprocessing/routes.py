@@ -61,3 +61,61 @@ def get_outliers():
     return jsonify(statistics)
 
 
+@bp.route('/NaNvalue')
+def delete_NaN():
+    # Retrieve all documents in the collection
+    cursor = files_collection.find({}, {'_id': 0})
+
+    # Convert cursor to a list of dictionaries
+    files_data = list(cursor)
+
+    # Convert the list of dictionaries to a DataFrame
+    df = pd.DataFrame(files_data)
+
+    # Calculate percentage of NaN values in each column
+    nan_percentages = df.isna().mean() * 100
+    
+    # Convert NaN percentages to dictionary
+    nan_percentages_dict = nan_percentages.to_dict()
+
+    # Fill missing values with 0
+    #df.fillna(0, inplace=True)
+
+    # Convert DataFrame to list of dictionaries
+    #data = df.to_dict(orient='records')
+
+    # Replace the entire collection with the new data
+   # files_collection.delete_many({})  # Remove existing documents
+    #files_collection.insert_many(data)  # Insert updated documents
+
+    # Return the data in JSON format
+    return jsonify(nan_percentages_dict)
+
+@bp.route('/process-nanvalues', methods=['POST'])
+def process_nanvalues():
+    try:
+        # Receive data from the frontend
+        nan_values = request.json
+
+        print(nan_values)
+
+        # Retrieve all documents in the collection
+        cursor = files_collection.find({})
+
+        # Convert cursor to a list of dictionaries
+        files_data = list(cursor)
+
+        # Convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(files_data)
+
+        # Fill missing values with user input value for each column
+        for column, value in nan_values.items():
+            df[column].fillna(value, inplace=True)
+
+        # Update MongoDB collection with the modified DataFrame
+        for index, row in df.iterrows():
+            files_collection.update_one({'_id': row['_id']}, {'$set': row.to_dict()}, upsert=False)
+
+        return jsonify({'message': 'NaN values processed successfully.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 
 const ChartComponent = () => {
+    const [defaultValues, setDefaultValues] = useState({});
+    const [inputValues, setInputValues] = useState({});
     const [chartData, setChartData] = useState({
         labels: [],
         datasets: [
@@ -26,7 +28,9 @@ const ChartComponent = () => {
                 const data = response.data;
 
                 console.log(data);
-                console.log("Test");
+                //console.log("Test");
+
+                const filteredColumns = Object.keys(data).filter(key => data[key] !== 0);
 
                 setChartData({
                     labels: Object.keys(data),
@@ -40,6 +44,15 @@ const ChartComponent = () => {
                         }
                     ]
                 });
+
+                // Initialize default values
+                const initialValues = {};
+                filteredColumns.forEach(key => {
+                    initialValues[key] = '';
+                });
+                setDefaultValues(initialValues);
+                setInputValues(initialValues);
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -49,10 +62,43 @@ const ChartComponent = () => {
     }, []);
 
 
+    const handleInputValueChange = (columnName, value) => {
+        setInputValues({
+            ...inputValues,
+            [columnName]: value
+        });
+    };
+
+    const processNaNValues = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/process-nanvalues', inputValues);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error processing NaN values:', error);
+        }
+    };
+
     return (
         <div className="p-4 border border-gray-300 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">NaN values</h2>
-            <div style={{ height: '300px', width: '600px' }}>
+            <div>
+                {Object.keys(defaultValues).map(columnName => (
+                    <div key={columnName} className="mb-2">
+                        <label htmlFor={columnName} className="mr-2">{columnName}:</label>
+                        <input
+                            type="text"
+                            value={inputValues[columnName]}
+                            onChange={(e) => handleInputValueChange(columnName, e.target.value)}
+                            className="border border-gray-400 rounded-md p-1 ml-2"
+                        />
+                    </div>
+                ))}
+                <div className="mt-4">
+                    <button onClick={processNaNValues} className="bg-blue-500 text-white px-4 py-2 rounded-md">Process NaN Values</button>
+                </div>
+            </div>
+
+            <div>
                 <Bar
                     data={chartData}
                 />
