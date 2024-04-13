@@ -7,7 +7,7 @@ const ChartComponent = ({ data }) => {
     datasets: [],
   });
 
-  const [temperatureRange, setTemperatureRange] = useState([0, 100]);
+  const [temperatureRange, setTemperatureRange] = useState([0, 60]);
 
   useEffect(() => {
 
@@ -43,13 +43,13 @@ const ChartComponent = ({ data }) => {
       <h2 className="text-xl font-semibold mb-4">Scatter Plot: Active Power vs Temperature</h2>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <span className="mr-3">Min : {temperatureRange[0]}</span>
-          <span>Max : {temperatureRange[1]}</span>
+          <span className="mr-3">Min Temperature: {temperatureRange[0]}°C</span>
+          <span>Max Temperature: {temperatureRange[1]}°C</span>
           <Slider
             value={temperatureRange}
             onChange={handleTemperatureChange}
             min={0}
-            max={100}
+            max={60}
             valueLabelDisplay="auto"
             aria-labelledby="range-slider"
           />

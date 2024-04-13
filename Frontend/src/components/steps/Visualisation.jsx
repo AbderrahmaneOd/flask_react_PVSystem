@@ -4,6 +4,7 @@ import TimeTech from "../charts/TimeTech"
 import MaintenanceFreq from "../charts/MaintenanceFreq"
 import TemperaturePowerDynamic from "../charts/TemperaturePowerDynamic"
 import ManifPowerTime from "../charts/ManifPowerTime"
+import TemperatureByArray from "../charts/TemperatureByArray"
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
@@ -34,7 +35,7 @@ export default function Visualisation() {
       <MaintenanceFreq  data={chartData} />
       <ManifPowerTime data={chartData}/>
       <TemperaturePowerDynamic data={chartData}/>
-
+      <TemperatureByArray data={chartData} />
     </div>
   );
 }
