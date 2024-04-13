@@ -7,28 +7,16 @@ const ChartComponent = () => {
     const [inputValues, setInputValues] = useState({});
     const [chartData, setChartData] = useState({
         labels: [],
-        datasets: [
-            {
-                label: '% NaN Values ',
-                data: [],
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                tension: 0.1
-            },
-        ],
+        datasets: [],
     });
-
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+
                 const response = await axios.get('http://localhost:5000/NaNvalue');
-
                 const data = response.data;
-
-                //console.log(data);
-                //console.log("Test");
 
                 const filteredColumns = Object.keys(data).filter(key => data[key] !== 0);
 
@@ -39,8 +27,7 @@ const ChartComponent = () => {
                             label: '%NaN Values',
                             data: Object.values(data),
                             fill: false,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
+                            backgroundColor: 'rgba(234, 174, 199, 0.8)',
                         }
                     ]
                 });
@@ -73,6 +60,7 @@ const ChartComponent = () => {
         try {
             const response = await axios.post('http://localhost:5000/process-nanvalues', inputValues);
             console.log(response.data);
+            setSuccessMessage(response.data.message);
         } catch (error) {
             console.error('Error processing NaN values:', error);
         }
@@ -82,26 +70,45 @@ const ChartComponent = () => {
         <div className="p-4 border border-gray-300 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">NaN values</h2>
             <div>
-                {Object.keys(defaultValues).map(columnName => (
-                    <div key={columnName} className="mb-2">
-                        <label htmlFor={columnName} className="mr-2">{columnName}:</label>
-                        <input
-                            type="text"
-                            value={inputValues[columnName]}
-                            onChange={(e) => handleInputValueChange(columnName, e.target.value)}
-                            className="border border-gray-400 rounded-md p-1 ml-2"
-                        />
+                <table>
+                    {Object.keys(defaultValues).map(columnName => (
+                        <tbody >
+                            <tr key={columnName}>
+                                <td>
+                                    <label htmlFor={columnName}>{columnName}</label>
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        value={inputValues[columnName]}
+                                        onChange={(e) => handleInputValueChange(columnName, e.target.value)}
+                                        className="border border-gray-400 rounded-md"
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    ))}
+                </table>
+
+                {defaultValues && ( // Check if defaultValues is not falsy
+                    Object.keys(defaultValues).length !== 0
+                ) && (
+                        <div className="mt-4">
+                            <button onClick={processNaNValues} className="bg-blue-500 text-white px-4 py-2 rounded-md">Process</button>
+                        </div>
+                    )}
+
+
+                {successMessage && (
+                    <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <strong className="font-bold">Success!</strong>
+                        <span className="block sm:inline"> {successMessage}</span>
                     </div>
-                ))}
-                <div className="mt-4">
-                    <button onClick={processNaNValues} className="bg-blue-500 text-white px-4 py-2 rounded-md">Process NaN Values</button>
-                </div>
+                )}
             </div>
 
             <div>
-                <Bar
-                    data={chartData}
-                />
+                <Bar data={chartData} />
             </div>
         </div>
     );
