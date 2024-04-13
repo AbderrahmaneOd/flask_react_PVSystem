@@ -5,7 +5,7 @@ const ChartComponent = ({ data }) => {
     const [chartData, setChartData] = useState(null);
     const [selectedTechnology, setSelectedTechnology] = useState('');
     const [selectedManuf, setSelectedManuf] = useState('');
-    const [selectedYearsInstallation, setSelectedYearsInstallation] = useState(null);
+    const [selectedYearsInstallation, setSelectedYearsInstallation] = useState('');
 
     useEffect(() => {
         if (data.length === 0) return;

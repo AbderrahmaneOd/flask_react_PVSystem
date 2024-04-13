@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import DataEntriesByArray from '../charts/DataEntriesByArray'
 import DataEntiesByTime from '../charts/DataEntiesByTime'
+import DataDistribution from '../charts/DataDistribution'
 
 export default function VisualizeStatistics () {
   const [chartData, setChartData] = useState([]);
@@ -25,6 +26,7 @@ export default function VisualizeStatistics () {
     <div className="flex flex-col ">
       <DataEntriesByArray data={chartData}/>
       <DataEntiesByTime data={chartData}/>
+      <DataDistribution data={chartData}/>
     </div>
   );
 }
