@@ -12,7 +12,7 @@ const ChartComponent = ({ data }) => {
   const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
-    
+
     // Filter data within the selected date range
     const filteredData = data.filter(entry => {
       const entryDate = new Date(entry.Timestamp);
@@ -74,7 +74,7 @@ const ChartComponent = ({ data }) => {
   };
 
   return (
-    <div className="p-4 border border-gray-300 rounded-lg">
+    <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
       <h2 className="text-xl font-semibold mb-4">Power Generation vs. Time</h2>
       <div className="flex items-center mb-4">
         <select
@@ -105,7 +105,7 @@ const ChartComponent = ({ data }) => {
           className="border border-gray-300 rounded-md py-2 px-4"
         />
       </div>
-      <div style={{ height: '300px', width: '600px' }}>
+      <div>
         <Line
           data={chartData}
         />

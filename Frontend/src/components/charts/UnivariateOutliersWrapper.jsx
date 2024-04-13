@@ -21,7 +21,7 @@ const ChartWrapper = () => {
     }, []);
 
     return (
-        <div className="p-4 border border-gray-300 rounded-lg">
+        <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Outliers detection</h2>
             {chartData && Object.entries(chartData).map(([label, data]) => {
                 //console.log("Label:", label);

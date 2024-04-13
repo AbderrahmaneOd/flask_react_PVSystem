@@ -5,7 +5,7 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 const ChartComponent = ({ data }) => {
-  
+
   const [chartData, setChartData] = useState({
     datasets: [],
   });
@@ -44,7 +44,7 @@ const ChartComponent = ({ data }) => {
   ) : [];
 
   return (
-    <div className="p-4 border border-gray-300 rounded-lg">
+    <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
       <h2 className="text-xl font-semibold mb-4">Scatter Plot: Active Power vs Global Horizontal Radiation</h2>
       <div className="flex items-center mb-4">
         <label htmlFor="start-date" className="mr-2">Min Irradiance</label>
@@ -65,7 +65,7 @@ const ChartComponent = ({ data }) => {
           className="border border-gray-300 rounded-md py-2 px-4"
         />
       </div>
-      <div style={{ height: '400px', width: '600px' }}>
+      <div className="h-96">
         <Scatter
           data={{
             datasets: [{

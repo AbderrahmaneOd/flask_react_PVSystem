@@ -60,7 +60,7 @@ const MaintenanceFrequencyChart = ({ data }) => {
   };
 
   return (
-    <div className="p-4 border border-gray-300 rounded-lg">
+    <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
       <h2 className="text-xl font-semibold mb-4">Maintenance Frequency</h2>
       <div>
         <select
@@ -74,7 +74,7 @@ const MaintenanceFrequencyChart = ({ data }) => {
           <option value="year">Year</option>
         </select>
       </div>
-      <div style={{ height: '250px', width: '500px' }}>
+      <div>
         <Bar data={maintenanceData} />
       </div>
     </div>

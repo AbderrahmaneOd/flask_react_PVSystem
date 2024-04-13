@@ -23,7 +23,7 @@ export default function VisualizeStatistics () {
   }, []);
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col space-y-6">
       <DataEntriesByArray data={chartData}/>
       <DataEntiesByTime data={chartData}/>
       <DataDistribution data={chartData}/>

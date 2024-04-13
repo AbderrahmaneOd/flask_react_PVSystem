@@ -94,7 +94,7 @@ const ChartComponent = ({ data }) => {
 
 
     return (
-        <div className="p-4 border border-gray-300 rounded-lg">
+        <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Line: Average Power vs. Temperature</h2>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
@@ -132,7 +132,7 @@ const ChartComponent = ({ data }) => {
                     <option value="year">Year</option>
                 </select>
             </div>
-            <div style={{ height: '400px', width: '600px' }}>
+            <div>
                 <Line data={chartData} />
             </div>
         </div>

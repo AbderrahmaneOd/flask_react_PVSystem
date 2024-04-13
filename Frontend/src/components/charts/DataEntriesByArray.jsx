@@ -64,7 +64,7 @@ const ChartComponent = ({ data }) => {
     };
 
     return (
-        <div className="p-4 border border-gray-300 rounded-lg">
+        <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Number of Data Entries by Version</h2>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <select
@@ -105,7 +105,7 @@ const ChartComponent = ({ data }) => {
 
             </div>
 
-            <div style={{ height: '300px', width: '600px' }}>
+            <div>
                 {chartData && (
                     <Bar
                         data={chartData}

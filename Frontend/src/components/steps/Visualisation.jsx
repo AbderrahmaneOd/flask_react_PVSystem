@@ -27,8 +27,7 @@ export default function Visualisation() {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
-      
+    <div className="flex flex-col space-y-6">
       <DynamiqueTime data={chartData} />
       <DynamiqueIrradiance data={chartData} />
       <TimeTech data={chartData} />

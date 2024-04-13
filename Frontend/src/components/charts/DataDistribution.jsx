@@ -51,7 +51,7 @@ const ChartComponent = ({ data }) => {
 
 
     return (
-        <div className="p-4 border border-gray-300 rounded-lg">
+        <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Histograms of Numerical Fields</h2>
             <div className="mb-4">
                 <label htmlFor="field-select" className="mr-2">Select Field:</label>
