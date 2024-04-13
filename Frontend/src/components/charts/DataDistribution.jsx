@@ -16,11 +16,7 @@ const ChartComponent = ({ data }) => {
     useEffect(() => {
         if (data.length === 0) return;
 
-        // Extracting Active_Power values
-        //const activePowerValues = data.map(entry => entry.Active_Power);
-
         // Extracting Active_Power values and rounding them to 2 decimal places
-        //const activePowerValues = data.map(entry => parseFloat(entry.Active_Power).toFixed(1));
         const selectedFieldValues = data.map(entry => parseFloat(entry[selectedField]).toFixed(0));
 
         // Counting the frequency of each unique Active_Power value
