@@ -8,16 +8,18 @@ const ChartComponent = ({ data }) => {
   });
 
   const [temperatureRange, setTemperatureRange] = useState([0, 60]);
+  const [selectedVersion, setSelectedVersion] = useState('');
 
   useEffect(() => {
 
 
-    const data2 = data.filter(entry => {
+    const dataFilter = data.filter(entry => {
       const temperature = entry.Weather_Temperature_Celsius;
-      return temperature >= temperatureRange[0] && temperature <= temperatureRange[1];
+      const versionMatch = selectedVersion ? entry.version == selectedVersion : true;
+      return versionMatch && temperature >= temperatureRange[0] && temperature <= temperatureRange[1];
     });
 
-    const scatterData = data2.map(entry => ({
+    const scatterData = dataFilter.map(entry => ({
       x: entry.Weather_Temperature_Celsius,
       y: entry.Active_Power,
     }));
@@ -32,10 +34,15 @@ const ChartComponent = ({ data }) => {
       ],
     });
 
-  }, [temperatureRange, data]);
+  }, [temperatureRange, selectedVersion, data]);
 
   const handleTemperatureChange = (event, newValue) => {
     setTemperatureRange(newValue);
+  };
+
+  const handleVersionChange = event => {
+    setSelectedVersion(event.target.value);
+    // console.log("Selected Version:", selectedVersion);
   };
 
   return (
@@ -54,6 +61,17 @@ const ChartComponent = ({ data }) => {
             aria-labelledby="range-slider"
           />
         </div>
+        <select
+          id="version"
+          value={selectedVersion}
+          onChange={handleVersionChange}
+          className="border border-gray-300 rounded-md"
+        >
+          <option value="">All Versions</option>
+          {data && data.length > 0 && [...new Set(data.map(entry => entry.version))].map(version => (
+            <option key={version} value={version}>{version}</option>
+          ))}
+        </select>
       </div>
       <div style={{ height: '400px', width: '600px' }}>
         <Scatter

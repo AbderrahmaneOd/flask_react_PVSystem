@@ -7,6 +7,7 @@ import Upload from "./Upload";
 import Preprocessing from "./Preprocessing";
 import Predict from "./Predict";
 import Visualisation from "./Visualisation";
+import Statistics from "./VisualizeStatistics"
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -14,6 +15,7 @@ function App() {
   const steps = [
     "Upload",
     "Preprocessing",
+    "Statistics",
     "Predict",
     "Visualisation",
   ];
@@ -23,10 +25,12 @@ function App() {
       case 1:
         return <Upload />;
       case 2:
-        return <Preprocessing  />;
+        return <Preprocessing />;
       case 3:
-        return <Predict />;
+        return <Statistics />;
       case 4:
+        return <Predict />;
+      case 5:
         return <Visualisation />;
       default:
     }
@@ -45,7 +49,7 @@ function App() {
         const response = await axios.get('http://localhost:5000/delete');
         const data = response.data;
         console.log(data);
-        
+
       } catch (error) {
         console.error("Error resetting:", error);
         // Handle reset error (optional)
