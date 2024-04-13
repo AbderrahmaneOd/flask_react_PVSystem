@@ -4,8 +4,9 @@ import DataEntriesByArray from '../charts/DataEntriesByArray'
 import DataEntiesByTime from '../charts/DataEntiesByTime'
 import DataDistribution from '../charts/DataDistribution'
 import FeaturesCorrelation from '../charts/FeaturesCorrelation'
+import StatisticsTable from '../charts/StatisticsTable'
 
-export default function VisualizeStatistics () {
+export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
@@ -24,9 +25,10 @@ export default function VisualizeStatistics () {
 
   return (
     <div className="flex flex-col space-y-6">
-      <DataEntriesByArray data={chartData}/>
-      <DataEntiesByTime data={chartData}/>
-      <DataDistribution data={chartData}/>
+      <StatisticsTable />
+      <DataEntriesByArray data={chartData} />
+      <DataEntiesByTime data={chartData} />
+      <DataDistribution data={chartData} />
       <FeaturesCorrelation data={chartData} />
     </div>
   );

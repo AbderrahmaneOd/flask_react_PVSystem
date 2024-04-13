@@ -70,14 +70,14 @@ const ChartComponent = () => {
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">NaN values</h2>
             <div>
-                <table>
+                <table className='border-1 border-gray-300'>
                     {Object.keys(defaultValues).map(columnName => (
                         <tbody >
                             <tr key={columnName}>
-                                <td>
+                                <td className="border-0"> 
                                     <label htmlFor={columnName}>{columnName}</label>
                                 </td>
-                                <td>
+                                <td className="border-0">
                                     <input
                                         type="text"
                                         value={inputValues[columnName]}
@@ -94,7 +94,7 @@ const ChartComponent = () => {
                     Object.keys(defaultValues).length !== 0
                 ) && (
                         <div className="mt-4">
-                            <button onClick={processNaNValues} className="bg-blue-500 text-white px-4 py-2 rounded-md">Process</button>
+                            <button onClick={processNaNValues} className="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded">Process</button>
                         </div>
                     )}
 

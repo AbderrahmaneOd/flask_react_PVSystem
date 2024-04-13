@@ -143,3 +143,75 @@ def process_nanvalues():
         return jsonify({'message': 'NaN values processed successfully.'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@bp.route('/statistics', methods=['GET'])
+def get_statistics():
+    # Retrieve data from MongoDB
+    cursor = files_collection.find({}, {
+        '_id': 0,
+        'Weather_Temperature_Celsius': 1,
+        'Weather_Relative_Humidity': 1,
+        'Global_Horizontal_Radiation': 1,
+        'Weather_Daily_Rainfall': 1,
+        'Active_Power': 1,
+        'Diffuse_Horizontal_Radiation': 1,
+        })
+
+    # Convert cursor to a list of dictionaries
+    files_data = list(cursor) 
+    
+    # Initialize dictionary to hold statistical values and outliers
+    statistics = {}
+
+    fields_to_retrieve = [
+        'Weather_Temperature_Celsius',
+        'Weather_Relative_Humidity',
+        'Global_Horizontal_Radiation',
+        'Weather_Daily_Rainfall',
+        'Active_Power',
+        'Diffuse_Horizontal_Radiation',
+    ]
+
+    # Extract values for each field and calculate statistics
+    for field in fields_to_retrieve:
+        values = [file_data[field] for file_data in files_data if field in file_data]
+        statistics[field] = calculate_statistics_v2(values)
+        
+
+    # Return the statistical values in JSON format
+    return jsonify(statistics)
+
+def calculate_statistics_v2(data):
+    # Sort the data
+    sorted_data = sorted(data)
+
+    # Calculate quartiles
+    q1 = np.percentile(sorted_data, 25)
+    q3 = np.percentile(sorted_data, 75)
+
+    # Calculate mean and median
+    mean = np.mean(sorted_data)
+    median = np.median(sorted_data)
+
+    # Calculate min and max
+    minimum = min(sorted_data)
+    maximum = max(sorted_data)
+
+    # Calculate standard deviation and variance
+    std_deviation = np.std(sorted_data)
+    variance = np.var(sorted_data)
+
+    # Calculate interquartile range (IQR)
+    iqr = q3 - q1
+
+    return {
+        "Min": minimum,
+        "Max": maximum,
+        "Q1": q1,
+        "Q3": q3,
+        "Median": median,
+        "Mean": mean,
+        "Standard deviation": std_deviation,
+        "Variance": variance,
+        "IQR": iqr
+    }
