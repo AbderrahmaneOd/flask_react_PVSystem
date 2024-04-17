@@ -145,12 +145,12 @@ def get_statistics():
     # Retrieve data from MongoDB
     cursor = files_collection.find({}, {
         '_id': 0,
-        'Weather_Temperature_Celsius': 1,
-        'Weather_Relative_Humidity': 1,
-        'Global_Horizontal_Radiation': 1,
-        'Weather_Daily_Rainfall': 1,
-        'Active_Power': 1,
-        'Diffuse_Horizontal_Radiation': 1,
+        'username': 0,
+        'manuf': 0,
+        'technology': 0,
+        'Timestamp': 0,
+        'support': 0,
+        'track': 0,
         })
 
     # Convert cursor to a list of dictionaries
@@ -168,6 +168,15 @@ def get_statistics():
         'Diffuse_Horizontal_Radiation',
     ]
 
+    # Extract all numeric fields
+    numeric_fields = []
+    for file_data in files_data:
+        for key, value in file_data.items():
+            if isinstance(value, (int, float)) and key not in numeric_fields:
+                numeric_fields.append(key)
+
+    #print(numeric_fields)
+    
     # Extract values for each field and calculate statistics
     for field in fields_to_retrieve:
         values = [file_data[field] for file_data in files_data if field in file_data]

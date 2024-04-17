@@ -6,6 +6,8 @@ import DataDistribution from '../charts/DataDistribution'
 import FeaturesCorrelation from '../charts/FeaturesCorrelation'
 import StatisticsTable from '../charts/StatisticsTable'
 import FeatureSelection from './../Preprocessing/FeatureSelection'
+import NaNValues from '../charts/NaNValues'
+import UnivariateOutliersWrapper from './../charts/UnivariateOutliersWrapper'
 
 export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
@@ -26,8 +28,11 @@ export default function VisualizeStatistics() {
 
   return (
     <div className="flex flex-col space-y-6">
-      {/*}
+      
       <StatisticsTable />
+      <NaNValues />
+      <UnivariateOutliersWrapper />
+      {/*
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
       <DataDistribution data={chartData} />
