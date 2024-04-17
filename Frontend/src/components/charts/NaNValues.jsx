@@ -15,8 +15,6 @@ const ChartComponent = () => {
                 const response = await axios.get('http://localhost:5000/NaNvalue');
                 const data = response.data;
 
-                const filteredColumns = Object.keys(data).filter(key => data[key] !== 0);
-
                 setChartData({
                     labels: Object.keys(data),
                     datasets: [

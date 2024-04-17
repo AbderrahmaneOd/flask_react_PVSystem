@@ -9,7 +9,7 @@ const StatisticsTable = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/statistics');
-                console.log(Object.keys(response.data));
+                //console.log(Object.keys(response.data));
                 setStatistics(response.data);
             } catch (error) {
                 console.error('Error fetching statistics:', error);

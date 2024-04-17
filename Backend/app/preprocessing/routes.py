@@ -262,16 +262,13 @@ def delete_columns():
 @bp.route('/detect_missing_rows', methods=['GET'])
 def detect_missing_rows():
     # Retrieve data from MongoDB
-    cursor = files_collection.find({}, {'_id': 0})
+    cursor = files_collection.find({}, {'_id': 0, 'username': 0})
 
     # Convert cursor to a DataFrame
     df = pd.DataFrame(list(cursor))
     
     # Perform missing rows detection
     missing_rows = detect_missing_rows(df)
-
-    # Convert DataFrame to JSON and return
-    return missing_rows.to_json(orient='records')
 
     # Convert DataFrame to JSON and return
     return missing_rows.to_json(orient='records')
@@ -304,3 +301,41 @@ def detect_missing_rows(df):
         missing_rows = missing_rows[['Year', 'Month', 'Day', 'Hour', 'Minute', 'version']]
         all_missing_rows = pd.concat([all_missing_rows, missing_rows])
     return all_missing_rows
+
+@bp.route('/correlation', methods=['GET'])
+def correlation():
+    # Retrieve data from MongoDB
+    cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+
+    # Convert cursor to a DataFrame
+    df = pd.DataFrame(list(cursor))
+
+    # Select numerical columns
+    numerical_columns = df.select_dtypes(include=['number']).columns
+
+    # Subset DataFrame to numerical columns
+    df_num = df[numerical_columns]
+
+    # Calculate correlation matrix
+    correlation_matrix = df_num.corr()
+
+    # Get feature names
+    feature_names = correlation_matrix.index.tolist()
+
+    # Initialize lists for z, x, and y
+    z = []
+    x = feature_names
+    y = feature_names
+
+    # Populate z list with correlation values
+    for feature1 in feature_names:
+        row = []
+        for feature2 in feature_names:
+            correlation_value = correlation_matrix.loc[feature1, feature2]
+            row.append(correlation_value)
+        z.append(row)
+
+    # Prepare the data for heatmap
+    heatmap_data = {'z': z, 'x': x, 'y': y}
+
+    return jsonify(heatmap_data)

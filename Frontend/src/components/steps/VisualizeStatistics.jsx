@@ -9,6 +9,7 @@ import FeatureSelection from './../Preprocessing/FeatureSelection'
 import NaNValues from '../charts/NaNValues'
 import UnivariateOutliersWrapper from './../charts/UnivariateOutliersWrapper'
 import MissingRowsTable from './../Statistics/MissingRowsTable'
+import CorrelationHeatmap from './../charts/CorrelationHeatmap'
 
 export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
@@ -34,6 +35,7 @@ export default function VisualizeStatistics() {
       <NaNValues />
       <UnivariateOutliersWrapper />
       <MissingRowsTable />
+      <CorrelationHeatmap />
       {/*
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
