@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import SidebarResearcher from "../../components/sidebar/SidebarResearcher";
 import Navbar from "../../components/navbar/Navbar";
 import "./Dashboard.scss";
-import Stepper from "../../components/steps/ProcessingSteps";
+import Stepper from "../../components/steps/Steps";
 
 
 const Dashboard = () => {

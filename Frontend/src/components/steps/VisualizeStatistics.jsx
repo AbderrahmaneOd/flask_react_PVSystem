@@ -5,6 +5,7 @@ import DataEntiesByTime from '../charts/DataEntiesByTime'
 import DataDistribution from '../charts/DataDistribution'
 import FeaturesCorrelation from '../charts/FeaturesCorrelation'
 import StatisticsTable from '../charts/StatisticsTable'
+import FeatureSelection from './../Preprocessing/FeatureSelection'
 
 export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
@@ -25,11 +26,13 @@ export default function VisualizeStatistics() {
 
   return (
     <div className="flex flex-col space-y-6">
+      {/*}
       <StatisticsTable />
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
       <DataDistribution data={chartData} />
-      <FeaturesCorrelation data={chartData} />
+      <FeaturesCorrelation data={chartData} /> */}
+      <FeatureSelection data={chartData} />
     </div>
   );
 }

@@ -2,10 +2,6 @@ from app.preprocessing import bp
 from flask import request, jsonify
 from pymongo import MongoClient
 import pandas as pd
-from io import StringIO
-from bson import ObjectId 
-import csv
-from datetime import datetime, timedelta
 import numpy as np
 
 # Connect to MongoDB
@@ -215,3 +211,41 @@ def calculate_statistics_v2(data):
         "Variance": variance,
         "IQR": iqr
     }
+
+
+@bp.route('/columns', methods=['GET'])
+def get_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id' : 0, 'username' : 0})
+
+    if document:
+        # Extract the keys (column names) from the document
+        columns = list(document.keys())
+        return jsonify({'columns': columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404
+    
+@bp.route('/delete/columns', methods=['POST'])
+def delete_columns():
+    # Expect column names to be sent in the request body as a JSON array
+    columns_to_delete = request.json.get('columns', [])
+
+    #print(columns_to_delete)
+
+    if not columns_to_delete:
+        return jsonify({'error': 'No columns specified for deletion'}), 400
+
+    try:
+        # Construct $unset operator object to delete specified columns
+        unset_columns = {column: True for column in columns_to_delete}
+        
+        # Update all documents in the collection to unset (delete) the specified columns
+        result = files_collection.update_many({}, {'$unset': unset_columns}, upsert=False)
+
+        deleted_columns_count = result.modified_count
+
+        return jsonify({'message': 'Columns deleted successfully'}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+

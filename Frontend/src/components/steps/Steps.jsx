@@ -14,8 +14,8 @@ function App() {
 
   const steps = [
     "Upload",
+    "Data Analysis & Statistics",
     "Preprocessing",
-    "Statistics",
     "Predict",
     "Visualisation",
   ];
@@ -25,9 +25,9 @@ function App() {
       case 1:
         return <Upload />;
       case 2:
-        return <Preprocessing />;
-      case 3:
         return <Statistics />;
+      case 3:
+        return <Preprocessing />;
       case 4:
         return <Predict />;
       case 5:

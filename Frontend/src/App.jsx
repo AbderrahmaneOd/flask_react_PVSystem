@@ -9,8 +9,7 @@ import Statistics from "./components/Statistics/Statistics";
 import AdminDashboard from "./pages/AdminDashboard/Dashboard";
 import ResearcherDashboard from "./pages/ResearcherDashboard/Dashboard"
 import AIManagerDashboard from "./pages/AIManagerDashboard/Dashboard"
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Stepper from "./components/steps/ProcessingSteps";
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
 
