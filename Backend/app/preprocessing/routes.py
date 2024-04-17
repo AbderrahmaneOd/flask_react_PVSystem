@@ -258,3 +258,49 @@ def delete_columns():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@bp.route('/detect_missing_rows', methods=['GET'])
+def detect_missing_rows():
+    # Retrieve data from MongoDB
+    cursor = files_collection.find({}, {'_id': 0})
+
+    # Convert cursor to a DataFrame
+    df = pd.DataFrame(list(cursor))
+    
+    # Perform missing rows detection
+    missing_rows = detect_missing_rows(df)
+
+    # Convert DataFrame to JSON and return
+    return missing_rows.to_json(orient='records')
+
+    # Convert DataFrame to JSON and return
+    return missing_rows.to_json(orient='records')
+
+
+def create_datetime_index(df):
+    # Combine Year, Month, Day, Hour, and Minute columns into a single datetime column
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%Y-%m-%d %H:%M:%S')
+    # Set the new datetime column as the index
+    df.set_index('Timestamp', inplace=True)
+    return df
+
+def detect_missing_rows(df):
+    df = create_datetime_index(df)
+    all_missing_rows = pd.DataFrame(columns=['Year', 'Month', 'Day', 'Hour', 'Minute', 'version'])
+    for vr in (df['version'].unique()):
+        df_ver = df[df['version'] == vr]
+        start_date = df_ver.index.min()
+        end_date = df_ver.index.max()
+        full_date_range = pd.date_range(start=start_date, end=end_date, freq='5T')
+        full_df = pd.DataFrame(index=full_date_range)
+        merged_df = full_df.merge(df_ver, left_index=True, right_index=True, how='left', indicator=True)
+        missing_rows = merged_df[merged_df['_merge'] == 'left_only']
+        missing_rows['Year'] = missing_rows.index.year
+        missing_rows['Month'] = missing_rows.index.month
+        missing_rows['Day'] = missing_rows.index.day
+        missing_rows['Hour'] = missing_rows.index.hour
+        missing_rows['Minute'] = missing_rows.index.minute
+        missing_rows['version'] = vr
+        missing_rows = missing_rows[['Year', 'Month', 'Day', 'Hour', 'Minute', 'version']]
+        all_missing_rows = pd.concat([all_missing_rows, missing_rows])
+    return all_missing_rows

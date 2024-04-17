@@ -4,10 +4,11 @@ import DataEntriesByArray from '../charts/DataEntriesByArray'
 import DataEntiesByTime from '../charts/DataEntiesByTime'
 import DataDistribution from '../charts/DataDistribution'
 import FeaturesCorrelation from '../charts/FeaturesCorrelation'
-import StatisticsTable from '../charts/StatisticsTable'
+import StatisticsTable from '../Statistics/StatisticsTable'
 import FeatureSelection from './../Preprocessing/FeatureSelection'
 import NaNValues from '../charts/NaNValues'
 import UnivariateOutliersWrapper from './../charts/UnivariateOutliersWrapper'
+import MissingRowsTable from './../Statistics/MissingRowsTable'
 
 export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
@@ -32,6 +33,7 @@ export default function VisualizeStatistics() {
       <StatisticsTable />
       <NaNValues />
       <UnivariateOutliersWrapper />
+      <MissingRowsTable />
       {/*
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
