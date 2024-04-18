@@ -332,7 +332,10 @@ def correlation():
         row = []
         for feature2 in feature_names:
             correlation_value = correlation_matrix.loc[feature1, feature2]
-            row.append(correlation_value)
+            if np.isnan(correlation_value):  # Check if value is NaN
+                row.append(None)  # Replace NaN with null
+            else:
+                row.append(correlation_value)
         z.append(row)
 
     # Prepare the data for heatmap

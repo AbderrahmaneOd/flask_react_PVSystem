@@ -13,7 +13,9 @@ const CorrelationHeatmap = () => {
         try {
             const response = await axios.get('http://localhost:5000/correlation');
             setCorrelationData(response.data);
-            //console.log(response.data.x);
+
+            //const responseData = JSON.parse(response.data);
+            //console.log(response.data);
         } catch (error) {
             console.error('Error fetching correlation data:', error);
         }
@@ -24,18 +26,18 @@ const CorrelationHeatmap = () => {
             <Plot
                 data={[
                     {
-                        z: [[1, 20, 30], [20, 1, 60], [30, 60, 1]],
+                        /*z: [[1, 20, 30], [20, 1, 60], [30, 60, 1]],
                         x: ['Monday', 'Tuesday', 'Wednesday',],
-                        y: ['Morning', 'Afternoon', 'Evening'],
-                        /*z: correlationData.z,
+                        y: ['Morning', 'Afternoon', 'Evening'],*/
+                        z: correlationData.z,
                         x: correlationData.x,
-                        y: correlationData.y, */
+                        y: correlationData.y, 
                         type: 'heatmap',
                         colorscale: 'Viridis'
                     }
                 ]}
                 layout={{
-                    width: 800,
+                    width: 900,
                     height: 600,
                     title: 'Features Correlation Heatmap'
                 }}
