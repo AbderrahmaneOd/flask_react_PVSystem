@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Bar } from 'react-chartjs-2';
 
-const ChartComponent = () => {
+const NaNvalueHandler = () => {
     const [defaultValues, setDefaultValues] = useState({});
     const [inputValues, setInputValues] = useState({});
-    const [chartData, setChartData] = useState({
-        labels: [],
-        datasets: [],
-    });
+    const [fillMethods, setFillMethods] = useState({}); // State to store fill methods for each column
     const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
@@ -18,15 +14,18 @@ const ChartComponent = () => {
                 const response = await axios.get('http://localhost:5000/NaNvalue');
                 const data = response.data;
 
-                const filteredColumns = Object.keys(data).filter(key => data[key] !== 0);                
+                const filteredColumns = Object.keys(data).filter(key => data[key] !== 0);
 
-                // Initialize default values
+                // Initialize default values and fill methods
                 const initialValues = {};
+                const initialFillMethods = {};
                 filteredColumns.forEach(key => {
                     initialValues[key] = '';
+                    initialFillMethods[key] = '';
                 });
                 setDefaultValues(initialValues);
                 setInputValues(initialValues);
+                setFillMethods(initialFillMethods);
 
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -44,11 +43,19 @@ const ChartComponent = () => {
         });
     };
 
+    const handleFillMethodChange = (columnName, method) => {
+        setFillMethods({
+            ...fillMethods,
+            [columnName]: method
+        });
+    };
+
     const processNaNValues = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/process-nanvalues', inputValues);
+            const response = await axios.post('http://localhost:5000/process/nanvalues', inputValues);
             console.log(response.data);
             setSuccessMessage(response.data.message);
+            //console.log(inputValues);
         } catch (error) {
             console.error('Error processing NaN values:', error);
         }
@@ -58,11 +65,20 @@ const ChartComponent = () => {
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">NaN values</h2>
             <div>
-                <table className='border-1 border-gray-300'>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Column name</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Constant Value</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mean/Median/Mode</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Forward Fill/Backward Fill</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deletion</th>
+                        </tr>
+                    </thead>
                     {Object.keys(defaultValues).map(columnName => (
-                        <tbody >
-                            <tr key={columnName}>
-                                <td className="border-0"> 
+                        <tbody  key={columnName} className="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td className="border-0">
                                     <label htmlFor={columnName}>{columnName}</label>
                                 </td>
                                 <td className="border-0">
@@ -70,15 +86,36 @@ const ChartComponent = () => {
                                         type="text"
                                         value={inputValues[columnName]}
                                         onChange={(e) => handleInputValueChange(columnName, e.target.value)}
-                                        className="border border-gray-400 rounded-md"
                                     />
+                                </td>
+                                <td>
+                                    <select value={fillMethods[columnName]} onChange={(e) => handleFillMethodChange(columnName, e.target.value)}>
+                                        <option value="">Select</option>
+                                        <option value="mean">Mean</option>
+                                        <option value="median">Median</option>
+                                        <option value="mode">Mode</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select value={fillMethods[columnName]} onChange={(e) => handleFillMethodChange(columnName, e.target.value)}>
+                                        <option value="">Select</option>
+                                        <option value="forwardFill">Forward Fill</option>
+                                        <option value="backwardFill">Backward Fill</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select value={fillMethods[columnName]} onChange={(e) => handleFillMethodChange(columnName, e.target.value)}>
+                                        <option value="">Select</option>
+                                        <option value="deleteRow">Delete Row</option>
+                                        <option value="deleteColumn">Delete Column</option>
+                                    </select>
                                 </td>
                             </tr>
                         </tbody>
                     ))}
                 </table>
 
-                {defaultValues && ( // Check if defaultValues is not falsy
+                {defaultValues && (
                     Object.keys(defaultValues).length !== 0
                 ) && (
                         <div className="mt-4">
@@ -96,8 +133,6 @@ const ChartComponent = () => {
             </div>
         </div>
     );
-
-
 };
 
-export default ChartComponent;
+export default NaNvalueHandler;
