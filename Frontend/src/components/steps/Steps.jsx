@@ -7,7 +7,7 @@ import Upload from "./Upload";
 import Preprocessing from "./Preprocessing";
 import Predict from "./Predict";
 import Visualisation from "./Visualisation";
-import Statistics from "./VisualizeStatistics"
+import DataAnalysis from "./DataAnalysis"
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -25,7 +25,7 @@ function App() {
       case 1:
         return <Upload />;
       case 2:
-        return <Statistics />;
+        return <DataAnalysis />;
       case 3:
         return <Preprocessing />;
       case 4:

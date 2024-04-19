@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import pandas as pd
 import numpy as np
 
+
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['pfa']
@@ -109,7 +110,7 @@ def process_NaNvalues():
     try:
         # Receive data from the frontend
         nan_values = request.json
-        print(nan_values)
+        #print(nan_values)
 
         # Retrieve all documents in the collection
         cursor = files_collection.find({})
@@ -139,12 +140,10 @@ def process_NaNvalues():
             else:  # For numerical constant values
                 value = float(method)
                 df[column].fillna(value, inplace=True)
-                print(value)
 
         # Update MongoDB collection with the modified DataFrame
         for index, row in df.iterrows():
             files_collection.update_one({'_id': row['_id']}, {'$set': row.to_dict()}, upsert=False)
-            #print("value")
 
         return jsonify({'message': 'NaN values processed successfully.'}), 200
 
@@ -353,3 +352,36 @@ def correlation():
     heatmap_data = {'z': z, 'x': x, 'y': y}
 
     return jsonify(heatmap_data)
+
+
+@bp.route('/correlation/bar')
+def correlation_data():
+
+    # Retrieve data from MongoDB
+    cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+
+    # Convert cursor to a DataFrame
+    df = pd.DataFrame(list(cursor))
+    
+    # Select numerical columns
+    df = df.select_dtypes(include=['number'])
+    
+    # Calculate correlation with Active_Power
+    corr_with_Power = df.corr()["Active_Power"].sort_values(ascending=False)
+    
+    # Drop Active_Power from correlations
+    corr_with_Power = corr_with_Power.drop("Active_Power")
+
+    # Replace NaN values with 0
+    corr_with_Power = corr_with_Power.fillna(0)
+    
+    # Prepare data for Chart.js
+    labels = corr_with_Power.index.tolist()
+    values = corr_with_Power.values.tolist()
+    
+    chart_data = {
+        'labels': labels,
+        'values': values
+    }
+    
+    return jsonify(chart_data)
