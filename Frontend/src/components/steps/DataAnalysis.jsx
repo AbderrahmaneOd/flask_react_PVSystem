@@ -3,14 +3,15 @@ import axios from 'axios';
 import DataEntriesByArray from '../charts/DataEntriesByArray'
 import DataEntiesByTime from '../charts/DataEntiesByTime'
 import DataDistribution from '../charts/DataDistribution'
-import FeaturesCorrelation from '../charts/FeaturesCorrelation'
-import StatisticsTable from '../Statistics/StatisticsTable'
-import FeatureSelection from '../Preprocessing/FeatureSelection'
+import CorrelationScatterPlot from '../charts/CorrelationScatterPlot'
+import StatisticsTable from '../scripts/StatisticsTable'
+import FeatureSelection from '../scripts/FeatureSelection'
 import NaNValues from '../charts/NaNValues'
 import UnivariateOutliersWrapper from '../charts/UnivariateOutliersWrapper'
-import MissingRowsTable from '../Statistics/MissingRowsTable'
+import MissingRowsTable from '../scripts/MissingRowsTable'
 import CorrelationHeatmap from '../charts/CorrelationHeatmap'
 import CorrelationBarChart from './../charts/CorrelationBarChart'
+import FeatureTypeTable from './../scripts/FeatureTypeTable'
 
 export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
@@ -33,16 +34,16 @@ export default function VisualizeStatistics() {
     <div className="flex flex-col space-y-6">
       
       <StatisticsTable />
+      <FeatureTypeTable />
       <NaNValues />
       <UnivariateOutliersWrapper />
       <MissingRowsTable />
       <CorrelationHeatmap />
       <CorrelationBarChart />
-      {/*
+      <CorrelationScatterPlot data={chartData}/>
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
       <DataDistribution data={chartData} />
-      <FeaturesCorrelation data={chartData} /> */}
       <FeatureSelection data={chartData} />
     </div>
   );

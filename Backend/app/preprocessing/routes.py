@@ -126,8 +126,12 @@ def process_NaNvalues():
             if method == 'mean':
                 df[column].fillna(df[column].mean(), inplace=True)
             elif method == 'median':
+                # Sort the data before using median
+                df.sort_values(by=[column], inplace=True)
                 df[column].fillna(df[column].median(), inplace=True)
             elif method == 'mode':
+                # Sort the data before using median
+                df.sort_values(by=[column], inplace=True)
                 df[column].fillna(df[column].mode()[0], inplace=True)
             elif method == 'forwardFill':
                 df[column].fillna(method='ffill', inplace=True)
@@ -164,7 +168,7 @@ def get_statistics():
         })
 
     # Convert cursor to a list of dictionaries
-    files_data = list(cursor) 
+    files_data = list(cursor)
     
     # Initialize dictionary to hold statistical values and outliers
     statistics = {}
@@ -219,16 +223,20 @@ def calculate_statistics_v2(data):
     # Calculate interquartile range (IQR)
     iqr = q3 - q1
 
+    # Calculate count of non-null values
+    count = len([value for value in data])
+
     return {
+        "Count": count,
         "Min": minimum,
-        "Max": maximum,
         "Q1": q1,
         "Q3": q3,
+        "IQR": iqr,
+        "Max": maximum,
         "Median": median,
         "Mean": mean,
         "Standard deviation": std_deviation,
         "Variance": variance,
-        "IQR": iqr
     }
 
 
@@ -385,3 +393,19 @@ def correlation_data():
     }
     
     return jsonify(chart_data)
+
+@bp.route('/data/type')
+def get_data_type():
+    try:
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+
+        # Convert cursor to a DataFrame
+        df = pd.DataFrame(list(cursor))
+
+        # Get data types of columns and convert to a dictionary
+        data_types = {column: str(dtype) for column, dtype in df.dtypes.items()}
+
+        return jsonify(data_types), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -60,7 +60,7 @@ const ChartComponent = ({ data }) => {
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Scatter Plot: Features Correlation</h2>
             <div className="flex items-center mb-4">
-                <label htmlFor="start-date" className="mr-2">Min Irradiance</label>
+                <label htmlFor="start-date" className="mr-2">Min</label>
                 <input
                     type="number"
                     name="min"
@@ -69,7 +69,7 @@ const ChartComponent = ({ data }) => {
                     className="border border-gray-300 rounded-md py-2 px-4"
                 />
 
-                <label htmlFor="start-date" className="ml-4 mr-2">Max Irradiance</label>
+                <label htmlFor="start-date" className="ml-4 mr-2">Max</label>
                 <input
                     type="number"
                     name="max"
