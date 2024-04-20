@@ -3,7 +3,7 @@ from flask import request, jsonify
 from pymongo import MongoClient
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
 from sklearn.metrics import r2_score
 
 # Connect to MongoDB
@@ -28,13 +28,22 @@ def get_model_score():
     # Calculate RMSE
     rmse = np.sqrt(mean_squared_error(df["Active_Power"], df["Active_Power_pred"]))
 
+    # Calculate NRMSE
+    nrmse = rmse*100/df["Active_Power"].mean()
+
     # Calculate MSE
     mse = mean_squared_error(df["Active_Power"], df["Active_Power_pred"])
 
     # Calculate MAE
     mae = mean_absolute_error(df["Active_Power"], df["Active_Power_pred"])
 
+    # Calculate NMAE
+    nmae = mae*100/df["Active_Power"].mean()
+
     # Calculate R-squared (R2) score
     r2 = r2_score(df["Active_Power"], df["Active_Power_pred"])
 
-    return jsonify({'RMSE': rmse, 'MSE': mse, 'MAE': mae, 'R2': r2})
+    # Calculate MAPE
+    mape=mean_absolute_percentage_error(df["Active_Power"], df["Active_Power_pred"])
+
+    return jsonify({'RMSE': rmse, 'MSE': mse, 'MAE': mae, 'R2': r2, 'MAPE': mape, 'NMAE': nmae})

@@ -5,7 +5,7 @@ import { UseContextProvider } from "../../contexts/StepperContext";
 import axios from 'axios';
 import Upload from "./Upload";
 import Preprocessing from "./Preprocessing";
-import Predict from "./Predict";
+import Prediction from "./Prediction";
 import Visualisation from "./Visualisation";
 import DataAnalysis from "./DataAnalysis"
 
@@ -16,7 +16,7 @@ function App() {
     "Upload",
     "Data Analysis & Statistics",
     "Preprocessing",
-    "Predict",
+    "Prediction",
     "Visualisation",
   ];
 
@@ -29,7 +29,7 @@ function App() {
       case 3:
         return <Preprocessing />;
       case 4:
-        return <Predict />;
+        return <Prediction />;
       case 5:
         return <Visualisation />;
       default:

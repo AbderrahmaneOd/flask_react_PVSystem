@@ -8,7 +8,6 @@ import StatisticsTable from '../scripts/StatisticsTable'
 import FeatureSelection from '../scripts/FeatureSelection'
 import NaNValues from '../charts/NaNValues'
 import UnivariateOutliersWrapper from '../charts/UnivariateOutliersWrapper'
-import MissingRowsTable from '../scripts/MissingRowsTable'
 import CorrelationHeatmap from '../charts/CorrelationHeatmap'
 import CorrelationBarChart from './../charts/CorrelationBarChart'
 import FeatureTypeTable from './../scripts/FeatureTypeTable'
@@ -22,6 +21,7 @@ export default function VisualizeStatistics() {
         const dataToSend = { username: localStorage.getItem('username') };
         const response = await axios.post('http://localhost:5000/files', dataToSend);
         setChartData(response.data);
+        //console.log(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -37,14 +37,13 @@ export default function VisualizeStatistics() {
       <FeatureTypeTable />
       <NaNValues />
       <UnivariateOutliersWrapper />
-      <MissingRowsTable />
       <CorrelationHeatmap />
       <CorrelationBarChart />
-      <CorrelationScatterPlot data={chartData}/>
+      {/*<CorrelationScatterPlot data={chartData}/>
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
       <DataDistribution data={chartData} />
-      <FeatureSelection data={chartData} />
+      <FeatureSelection data={chartData} /> */}
     </div>
   );
 }
