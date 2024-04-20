@@ -24,6 +24,9 @@ def create_app():
     from app.preprocessing import bp as preprocessing_bp
     app.register_blueprint(preprocessing_bp)
 
+    from app.prediction import bp as prediction_bp
+    app.register_blueprint(prediction_bp)
+
     @app.route('/test/')
     def test_page():
         return '<h1>Testing the Flask Application Factory Pattern</h1>'
