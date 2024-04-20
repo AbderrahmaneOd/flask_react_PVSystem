@@ -1,3 +1,6 @@
+import React from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import DynamiqueTime from "../charts/DynamiqueTime"
 import DynamiqueIrradiance from "../charts/DynamiqueIrradiance"
 import TimeTech from "../charts/TimeTech"
@@ -5,8 +8,7 @@ import MaintenanceFreq from "../charts/MaintenanceFreq"
 import TemperaturePowerDynamic from "../charts/TemperaturePowerDynamic"
 import ManifPowerTime from "../charts/ManifPowerTime"
 import TemperatureByArray from "../charts/TemperatureByArray"
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import PowerByTimeLineChart from "../charts/PowerByTimeLineChart"
 
 export default function Visualisation() {
   const [chartData, setChartData] = useState([]);
@@ -28,7 +30,8 @@ export default function Visualisation() {
 
   return (
     <div className="flex flex-col space-y-6">
-      <DynamiqueTime data={chartData} />
+      <PowerByTimeLineChart data={chartData}/>
+      {/*<DynamiqueTime data={chartData} />*/}
       <DynamiqueIrradiance data={chartData} />
       <TimeTech data={chartData} />
       <MaintenanceFreq  data={chartData} />
