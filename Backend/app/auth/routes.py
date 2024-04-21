@@ -19,7 +19,7 @@ def register():
     roles = data.get('roles', ["researcher"])  # Default roles to researcher if not provided
 
     if users_collection.find_one({'username': username}):
-        return jsonify({'message': 'User already exists'}), 400
+        return jsonify({'message': 'User already exists'}), 409
     
     hashed_password = generate_password_hash(password)
     

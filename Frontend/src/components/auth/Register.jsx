@@ -1,7 +1,8 @@
 import React from 'react';
 import axios from '../../api/axios';
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const REGISTER_URL = '/register';
 
@@ -13,10 +14,21 @@ const Registration = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [errMsg, setErrMsg] = useState('');
-  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
+
+    // Get the values of password and confirm password fields
+    const passwordValue = password;
+    const confirmPasswordValue = e.target.elements['confirm-password'].value;
+
+    // Check if the passwords match
+    if (passwordValue !== confirmPasswordValue) {
+      setErrMsg('Passwords do not match');
+      return; // Stop the registration process if passwords do not match
+    }
+
     try {
       const response = await axios.post(REGISTER_URL,
         JSON.stringify({
@@ -28,8 +40,7 @@ const Registration = () => {
           withCredentials: true
         }
       );
-      // Handle response
-      console.log(JSON.stringify(response?.data));
+
       // Clear form fields after successful registration
       setUsername('');
       setPassword('');
@@ -38,17 +49,27 @@ const Registration = () => {
       setPhone('');
       setEmail('');
 
-      navigate("/login");
+      setSuccessMessage(response?.data.message);
+
+      // Clear the message after a timeout (3 seconde)
+      const timeoutId1 = setTimeout(() => setSuccessMessage(''), 3000);
+      // Cleanup function to clear timeout on unmount
+      return () => clearTimeout(timeoutId1);
 
     } catch (err) {
       if (!err?.response) {
         setErrMsg('No Server Response');
       } else if (err.response?.status === 409) {
-        setErrMsg('Username Taken');
+        setErrMsg('Username already exists');
       } else {
         setErrMsg('Registration Failed')
       }
     }
+
+    // Clear the message after a timeout (3 seconde)
+    const timeoutId2 = setTimeout(() => setErrMsg(''), 3000);
+    // Cleanup function to clear timeout on unmount
+    return () => clearTimeout(timeoutId2);
   }
 
   return (
@@ -185,17 +206,30 @@ const Registration = () => {
               </div>
             </div>
 
-            
-
             <div>
               <button
                 type="submit"
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-brandPrimary hover:bg-neutralDGrey focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Register
               </button>
-
-
             </div>
+            {errMsg && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">
+                  <ErrorOutlineIcon className="mr-2 inline-block align-text-top" />
+                  {errMsg}
+                </span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">
+                  <CheckCircleOutlineIcon className="mr-2 inline-block align-text-top" />
+                  {successMessage}
+                </span>
+              </div>
+            )}
           </form>
         </div>
       </div>
