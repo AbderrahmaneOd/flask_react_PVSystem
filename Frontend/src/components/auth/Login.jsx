@@ -2,7 +2,7 @@ import React from 'react';
 import axios from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 const LOGIN_URL = '/login';
 
@@ -77,11 +77,16 @@ const Login = () => {
       } else if (error.response?.status === 400) {
         setError('Missing Username or Password');
       } else if (error.response?.status === 401) {
-        setError('Unauthorized');
+        setError('Invalid credentials');
       } else {
         setError('Login Failed');
       }
     }
+
+    // Clear the message after a timeout (3 seconde)
+    const timeoutId = setTimeout(() => setError(''), 2000);
+    // Cleanup function to clear timeout on unmount
+    return () => clearTimeout(timeoutId);
   };
 
   return (
@@ -90,6 +95,14 @@ const Login = () => {
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in</h2>
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">
+              <ErrorOutlineIcon className="mr-2 inline-block align-text-top" />
+              {error}
+            </span>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleLogin} method="POST">
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
