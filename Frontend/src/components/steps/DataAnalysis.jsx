@@ -39,11 +39,11 @@ export default function VisualizeStatistics() {
       <UnivariateOutliersWrapper />
       <CorrelationHeatmap />
       <CorrelationBarChart />
-      {/*<CorrelationScatterPlot data={chartData}/>
+      <CorrelationScatterPlot data={chartData}/>
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
       <DataDistribution data={chartData} />
-      <FeatureSelection data={chartData} /> */}
+      <FeatureSelection data={chartData} />
     </div>
   );
 }

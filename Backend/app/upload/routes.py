@@ -2,10 +2,7 @@ from app.upload import bp
 from flask import request, jsonify
 from pymongo import MongoClient
 import pandas as pd
-from io import StringIO
-from bson import ObjectId 
-import csv
-from datetime import datetime, timedelta
+
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -22,6 +19,15 @@ def get_files():
     # Retrieve data from MongoDB
     cursor = files_collection.find({'username': username}, {'_id' : 0, 'username' : 0 })
     files_data = list(cursor)  # Convert cursor to a list of dictionaries
+
+    # Convert list of dictionaries to DataFrame
+    df = pd.DataFrame(files_data)
+    
+    # Replace NaN values with 0
+    df.fillna(0, inplace=True)
+    
+    # Convert DataFrame back to list of dictionaries
+    files_data = df.to_dict(orient='records')
 
     # Return the data in JSON format
     return jsonify(files_data)
