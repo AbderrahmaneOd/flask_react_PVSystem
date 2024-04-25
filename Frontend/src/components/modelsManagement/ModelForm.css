@@ -1,0 +1,63 @@
+.post__wrapper {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url(https://img.freepik.com/free-vector/gradient-blur-pink-blue-abstract-background_53876-117324.jpg?w=900&t=st=1675188227~exp=1675188827~hmac=46e28bebc82abe965c3310ec23e2a551abbe1a63dc203e920773f30300c5855c) no-repeat center center fixed;
+    background-size: cover;
+  }
+  
+  .container {
+    margin-top: -200px;
+    background: rgba(255, 255, 255, 0.8); /* Ajustement de l'opacité */
+    border-radius: 20px;
+    box-shadow: 0px 0px 29px 2px rgba(0, 0, 0, 0.31);
+    padding: 30px 20px;
+  }
+  
+  .post {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .post input[type="file"] {
+    width: 100%;
+    padding: 10px; /* Ajout de padding pour une meilleure apparence */
+    border: 2px solid #ccc; /* Ajout d'une bordure */
+    border-radius: 5px; /* Ajout de coins arrondis */
+  }
+  
+  .post label {
+    font-size: 18px; /* Augmentation de la taille de police */
+  }
+  
+  .post button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .post button[type="submit"]:hover {
+    background-color: #45a049; /* Changement de couleur au survol */
+  }
+  
+  .error, .success {
+    margin-top: 10px; /* Ajout d'un espace entre le message d'erreur/succès et le bouton */
+    font-size: 16px; /* Ajustement de la taille de police */
+    color: red; /* Couleur rouge pour les messages d'erreur */
+  }
+  
+  .success {
+    color: green; /* Couleur verte pour les messages de succès */
+  }
+  

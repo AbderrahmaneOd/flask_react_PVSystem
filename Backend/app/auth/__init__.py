@@ -462,6 +462,169 @@ def send_email():
 
 
 ##############################################################################################################################################################################################
+import os
+import numpy as np
+from flask import Flask, request, jsonify
+from tensorflow import keras
+from datetime import datetime
+import os
+
+
+UPLOAD_FOLDER = '../ModelDB'
+ALLOWED_EXTENSIONS = {'h5'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@bp.route('/uploadModel', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files or 'modelName' not in request.form:
+        return 'Veuillez fournir à la fois le fichier et le nom du modèle.'
+
+    file = request.files['file']
+    model_name = request.form['modelName']
+
+    if file.filename == '' or model_name == '':
+        return 'Veuillez spécifier à la fois le fichier et le nom du modèle.'
+
+    if file and allowed_file(file.filename):
+        # Vérification de l'unicité du nom de modèle
+        model_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, model_name + '.h5')
+        if os.path.exists(model_path):
+            return 'Le nom du modèle existe déjà. Veuillez choisir un autre nom.'
+
+        # Construction du chemin absolu pour sauvegarder le fichier
+        upload_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, model_name + '.h5')
+        file.save(upload_path)
+        return 'Fichier téléchargé avec succès'
+    else:
+        return 'Extension de fichier non autorisée. Seuls les fichiers avec l\'extension .h5 sont autorisés.'
+
+
+
+@bp.route('/updateModel/<string:modelName>', methods=['PUT'])
+def update_model(modelName):
+    if 'file' not in request.files:
+        return 'Veuillez fournir le fichier à mettre à jour.'
+
+    file = request.files['file']
+    new_model_name = request.form.get('newModelName')
+
+    # Vérification que le fichier est fourni
+    if file.filename == '':
+        return 'Veuillez spécifier le fichier à mettre à jour.'
+
+    # Construction du chemin absolu pour le modèle existant
+    model_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, modelName + '.h5')
+
+    if not os.path.exists(model_path):
+        return f'Le modèle spécifié ({modelName}) n\'existe pas.'
+
+    # Si un fichier est fourni, mettez à jour le modèle en écrasant l'ancien fichier
+    if file and allowed_file(file.filename):
+        file.save(model_path)
+
+    # Si un nouveau nom est fourni, renommez le fichier
+    if new_model_name and new_model_name != modelName:
+        new_model_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, new_model_name + '.h5')
+
+        if os.path.exists(new_model_path):
+            return f'Le nouveau nom ({new_model_name}) existe déjà. Veuillez choisir un autre nom.'
+
+        os.rename(model_path, new_model_path)
+
+    return 'Modèle mis à jour avec succès.'
+
+
+
+@bp.route('/deleteModel', methods=['DELETE'])
+def delete_model():
+    model_name = request.args.get('modele')  # Remplacez 'modelName' par 'modele'
+    if model_name is None:
+        return 'Veuillez spécifier le nom du modèle à supprimer.'
+
+    # Construction du chemin absolu pour supprimer le modèle
+    model_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, model_name + '.h5')
+
+    if os.path.exists(model_path):
+        os.remove(model_path)
+        return 'Modèle supprimé avec succès.'
+    else:
+        return f'Le modèle spécifié ({model_name}) n\'existe pas.'
+
+
+@bp.route('/getModel', methods=['GET'])
+def get_model():
+    model_name = request.args.get('modele')
+    if model_name is None:
+        return 'Veuillez spécifier le nom du modèle à récupérer.'
+
+    model_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, model_name + '.h5')
+
+    if os.path.exists(model_path):
+        file_stat = os.stat(model_path)
+        model_info = {
+            'modelName': model_name,
+            'fileSize': get_file_size(file_stat.st_size),
+            'dateAdded': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d')
+        }
+        return jsonify(model_info)
+    else:
+        return f'Le modèle spécifié ({model_name}) n\'existe pas.'
+
+
+
+@bp.route('/getAllModels', methods=['GET'])
+def get_all_models():
+    models_info = []
+    for filename in os.listdir(os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER)):
+        if filename.endswith('.h5'):
+            file_path = os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER, filename)
+            file_stat = os.stat(file_path)
+            model_info = {
+                'modelName': filename[:-3],
+                'fileSize': get_file_size(file_stat.st_size),
+                'dateAdded': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d')
+            }
+            models_info.append(model_info)
+    return jsonify(models_info)
+
+
+
+
+def get_file_size(file_size):
+    # Convertir la taille du fichier en Ko, Mo ou Go en fonction de sa taille
+    units = ['bytes', 'KB', 'MB', 'GB', 'TB']
+    for i in range(len(units)):
+        if file_size < 1024 or i == len(units) - 1:
+            return {'value': round(file_size, 2), 'unit': units[i]}
+        file_size /= 1024
+
+
+
+
+@bp.route('/utiliserModele/<string:modelName>', methods=['GET'])
+def utiliser_modele(modelName):
+    print("Nom du modèle récupéré :", modelName)  # Ajout d'une instruction de débogage
+
+    if modelName:
+        model_path = os.path.join("app/ModelDB/", modelName + '.h5')
+        print("Chemin relatif du modèle :", model_path)  # Ajout d'une instruction de débogage
+
+        if os.path.exists(model_path):
+            model = keras.models.load_model(model_path)
+            input_data = np.array([3])
+            result = model.predict(input_data)
+            return f'Résultat de la prédiction : {result[0]}'
+        else:
+            return f'Le modèle spécifié ({modelName}) n\'existe pas.'
+    else:
+        return 'Veuillez spécifier le nom du fichier modèle dans les paramètres de l\'URL.'
+    
+
+
+
 
 
 from app.auth import routes

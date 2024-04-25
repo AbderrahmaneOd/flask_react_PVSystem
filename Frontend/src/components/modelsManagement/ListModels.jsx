@@ -1,47 +1,48 @@
-import config from "../../../config.json";
+import config from "../../config.json";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "./Users.css";
+import "./ListModels.css";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../../../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
-const Users = () => {
+const ListModels = () => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-  const [users, setUsers] = useState([]);
-  const [userToDelete, setUserToDelete] = useState(null);
+  const [models, setModels] = useState([]);
+  const [modelToDelete, setModelToDelete] = useState(null);
 
-  const fetchUsers = async () => {
+  const fetchModels = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${config.apiUrl}/users`, {
+      const res = await axios.get(`${config.apiUrl}/getAllModels`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setUsers(res.data);
+      setModels(res.data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching models:", error);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchModels();
   }, []);
 
-  const handleDelete = async (username) => {
+  const handleDelete = async (modelName) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${config.apiUrl}/users/${username}`, {
+      await axios.delete(`${config.apiUrl}/deleteModel?modele=${modelName}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setUsers(users.filter((user) => user.username !== username));
+      setModels(models.filter((model) => model.modelName !== modelName));
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error deleting model:", error);
     }
   };
+  
 
   return (
     <div className="home">
@@ -50,41 +51,37 @@ const Users = () => {
           <div className="container">
             {isAdmin && (
               <button
-                onClick={() => navigate("/admin/user/new")}
+                onClick={() => navigate("/admin/models/new")}
                 className="btn btn-primary mb-4"
               >
-                Nouvel Utilisateur         
+                Nouveau Modèle
               </button>
             )}
             <table className="table">
               <thead>
                 <tr>
-                  <th>Nom d'utilisateur</th>
-                  <th>Prénom</th>
-                  <th>Nom</th>
-                  <th>Email</th>
-                  <th>Rôles</th>
+                  <th>Nom du Modèle</th>
+                  <th>Taille du Fichier</th>
+                  <th>Date d'Ajout</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user.username}>
-                    <td>{user.username}</td>
-                    <td>{user.firstName}</td>
-                    <td>{user.lastName}</td>
-                    <td>{user.email}</td>
-                    <td>{user.roles.join(', ')}</td>
+                {models.map((model) => (
+                  <tr key={model.modelName}>
+                    <td>{model.modelName}</td>
+                    <td>{model.fileSize.value} {model.fileSize.unit}</td>
+                    <td>{model.dateAdded}</td>
                     <td>
                       <button
-                        onClick={() => navigate(`/admin/user/${user.username}`)}
-                        className="btn  btn-info btn-update"
+                        onClick={() => navigate(`/admin/models/${model.modelName}`)}
+                        className="btn btn-info btn-update"
                       >
                         Modifier
                       </button>
                       {isAdmin && (
                         <button
-                          onClick={() => handleDelete(user.username)}
+                          onClick={() => handleDelete(model.modelName)}
                           className="btn btn-danger btn-delete"
                         >
                           Supprimer
@@ -102,4 +99,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default ListModels;

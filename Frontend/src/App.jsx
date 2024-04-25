@@ -10,6 +10,8 @@ import AdminDashboard from "./pages/AdminDashboard/Dashboard";
 import ResearcherDashboard from "./pages/ResearcherDashboard/Dashboard"
 import AIManagerDashboard from "./pages/AIManagerDashboard/Dashboard"
 import { Routes, Route } from 'react-router-dom';
+import ModelForm from "./components/modelsManagement/ModelForm";
+import ListModels from "./components/modelsManagement/ListModels";
 
 function App() {
 
@@ -17,6 +19,10 @@ function App() {
   return (
     <>
         <Routes>
+
+       
+
+
           
           <Route path="/" element={<Home />} />
           <Route path="/admin/*" element={<AdminDashboard />} />

@@ -11,7 +11,8 @@ import Table from "../../components/table/Table";
 import Users from '../../components/UserManagement/list/Users';
 import User from '../../components/UserManagement/list/User';
 
-
+import ModelForm from '../../components/modelsManagement/ModelForm';
+import ListModels from '../../components/modelsManagement/ListModels';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -50,6 +51,12 @@ const Dashboard = () => {
 
           <Route path="users" element={<Users />} />
           <Route path="user/:username" element={<User />} />
+            
+          
+            
+        <Route path="/listmodels" element={<ListModels />} />
+        <Route path="models/:modelName" element={<ModelForm />} />
+
 
         </Routes>
       </div>

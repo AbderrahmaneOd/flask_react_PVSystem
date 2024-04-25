@@ -3,10 +3,11 @@ import axios from 'axios';
 
 const ModelEvaluation = () => {
     const [data, setData] = useState([]);
+    const [models, setModels] = useState([]);
     const [selectedModel, setSelectedModel] = useState('');
 
     useEffect(() => {
-        
+
     }, []);
 
     const fetchData = async () => {
@@ -17,25 +18,46 @@ const ModelEvaluation = () => {
             console.error('Error fetching missing rows:', error);
         }
     };
-
-    const handleModelChange = (e) => {
-        setSelectedModel(e.target.value);
-    };
+    
+    useEffect(() => {
+        // Effectue la requête pour récupérer les modèles depuis l'API
+        axios.get("http://localhost:5000/getAllModels")
+          .then(response => {
+            // Met à jour l'état avec les modèles récupérés depuis l'API
+            setModels(response.data);
+          })
+          .catch(error => {
+            console.error("Erreur lors de la récupération des modèles :", error);
+          });
+      }, []); // Exécuté uniquement une fois après le montage du composant
+    
+      const handleModelChange = (event) => {
+        setSelectedModel(event.target.value);
+      };
 
     const handlePredict = () => {
         fetchData();
+        console.log("Prédiction pour le modèle :", selectedModel);
+
     };
 
     return (
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-lg font-bold mb-4">Prediction</h2>
-            <div className="flex items-center mb-4">
-                <select value={selectedModel} onChange={handleModelChange} className="mr-4 px-5 py-1 border border-gray-300 rounded">
+            <div>
+                <select
+                    value={selectedModel}
+                    onChange={handleModelChange}
+                    className="mr-4 px-5 py-1 border border-gray-300 rounded"
+                >
                     <option value="">Select Model</option>
-                    <option value="model1">Model 1</option>
-                    <option value="model2">Model 2</option>
+                    {models.map(model => (
+                        <option key={model.modelName} value={model.modelName}>{model.modelName}</option>
+                    ))}
                 </select>
-                <button onClick={handlePredict} className="px-4 py-2 bg-blue-500 text-white rounded">Predict</button>
+                <button onClick={handlePredict} className="px-4 py-2 bg-blue-500 text-white rounded">
+                    Predict
+                </button>
             </div>
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">

@@ -71,7 +71,7 @@ const User = () => {
           },
         });
       }
-      navigate("/users");
+      navigate("/admin/users");
     } catch (error) {
       console.error("Error:", error);
     }
