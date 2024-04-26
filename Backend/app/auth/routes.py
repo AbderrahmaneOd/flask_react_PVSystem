@@ -16,7 +16,7 @@ def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    roles = data.get('roles', ["researcher"])  # Default roles to researcher if not provided
+    roles = data.get('roles', ["researcher"])  
 
     if users_collection.find_one({'username': username}):
         return jsonify({'message': 'User already exists'}), 409
@@ -31,7 +31,8 @@ def register():
         firstName=data.get('firstName'),
         lastName=data.get('lastName'),
         phone=data.get('phone'),
-        email=data.get('email')
+        email=data.get('email'),
+        created_at=datetime.now().strftime("%d-%m-%Y") 
     )
     new_user.save()
     return jsonify({'message': 'User registered successfully'}), 201
@@ -63,6 +64,8 @@ def login():
         # "tokenExpiration": token_expiration.strftime("%Y-%m-%d %H:%M:%S")
         "tokenExpiration": int(token_expiration.timestamp() * 1000)
     }
+
+    print("access_token:",access_token)
 
     return jsonify(response), 200
 

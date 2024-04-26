@@ -10,7 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard/Dashboard";
 import ResearcherDashboard from "./pages/ResearcherDashboard/Dashboard"
 import AIManagerDashboard from "./pages/AIManagerDashboard/Dashboard"
 import { Routes, Route } from 'react-router-dom';
-import ModelForm from "./components/modelsManagement/ModelForm";
+import PieChart from "./components/Diagnostic/PieChart";
 import ListModels from "./components/modelsManagement/ListModels";
 
 function App() {

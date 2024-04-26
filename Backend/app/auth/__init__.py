@@ -10,11 +10,13 @@ from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
 from pymongo import MongoClient
+from datetime import datetime
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['pfa']
 users_collection = db['users']
+server_data = db['server_data']
 
 @bp.route('/users', methods=['GET'])
 @jwt_required()
@@ -67,7 +69,8 @@ def create_user():
         'firstName': data.get('firstName'),
         'lastName': data.get('lastName'),
         'phone': data.get('phone'),
-        'email': data.get('email')
+        'email': data.get('email'),
+        'created_at':datetime.now().strftime("%d-%m-%Y") 
     }
     users_collection.insert_one(new_user)
     return jsonify({'message': 'User registered successfully'}), 201
@@ -623,7 +626,325 @@ def utiliser_modele(modelName):
         return 'Veuillez spécifier le nom du fichier modèle dans les paramètres de l\'URL.'
     
 
+################################################ADMIN Dashboard##############################################################################################################################################
+import psutil
+import time
+from datetime import datetime, timedelta
 
+
+@bp.route('/users/count-by-role', methods=['GET'])
+@jwt_required()
+def count_users_by_role():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    pipeline = [
+        {'$unwind': '$roles'},
+        {'$group': {'_id': '$roles', 'count': {'$sum': 1}}}
+    ]
+
+    model_count = len(os.listdir(os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER)))
+
+    user_roles = users_collection.aggregate(pipeline)
+    user_roles_dict = {role['_id']: role['count'] for role in user_roles}
+    total_user_count = users_collection.count_documents({})
+
+    # Créer le dictionnaire de réponse avec le nombre total d'utilisateurs et le décompte des utilisateurs par rôle
+    response_dict = {"total_users": total_user_count}
+    response_dict.update(user_roles_dict)
+    
+    # Ajouter le décompte des modèles
+    response_dict["model_count"] = model_count
+
+    return jsonify(response_dict), 200
+
+
+
+
+@bp.route('/models/count', methods=['GET'])
+@jwt_required()
+def count_models():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    model_count = len(os.listdir(os.path.join(os.path.dirname(__file__), UPLOAD_FOLDER)))
+    return jsonify({'model_count': model_count}), 200
+
+from flask import jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+@bp.route('/users/percentage-by-role', methods=['GET'])
+@jwt_required()
+def calculate_percentage_by_role():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    pipeline = [
+        {'$unwind': '$roles'},
+        {'$group': {'_id': '$roles', 'count': {'$sum': 1}}}
+    ]
+    user_roles = users_collection.aggregate(pipeline)
+    user_roles_dict = {role['_id']: role['count'] for role in user_roles}
+    total_user_count = users_collection.count_documents({})
+    
+    # Créer un dictionnaire pour stocker les pourcentages
+    percentage_dict = {}
+
+    # Calculer le pourcentage de chaque rôle
+    for role, count in user_roles_dict.items():
+        percentage = (count / total_user_count) * 100
+        percentage_dict[role] = round(percentage, 2)
+
+    return jsonify(percentage_dict), 200
+
+
+
+
+@bp.route('/count-by-creation-date', methods=['GET'])
+@jwt_required()
+def count_users_by_creation_date():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    # Convertir les chaînes de date en objets Date
+    pipeline = [
+        {'$addFields': {'created_at': {'$toDate': '$created_at'}}},
+        {'$group': {'_id': {'$dateToString': {'format': '%Y-%m-%d', 'date': '$created_at'}}, 'count': {'$sum': 1}}},
+        {'$sort': {'_id': 1}}
+    ]
+    user_creation_dates = users_collection.aggregate(pipeline)
+    creation_dates_data = [{'date': item['_id'], 'count': item['count']} for item in user_creation_dates]
+
+    return jsonify(creation_dates_data), 200
+
+################################################Diagnostique Dash##############################################################################################################################################
+
+def check_server_state():
+    cpu_percent = psutil.cpu_percent() 
+    memory_percent = psutil.virtual_memory().percent  
+
+    if cpu_percent > 80 or memory_percent > 90:
+        return 'Critique'
+    elif cpu_percent > 60 or memory_percent > 70:
+        return 'Moyen'
+    else:
+        return 'Optimal'
+
+@bp.route('/server/status', methods=['GET'])
+@jwt_required()
+def server_status():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    server_state = check_server_state()
+    return jsonify({'server_state': server_state}), 200
+
+
+
+from threading import Thread
+
+# Fonction pour récupérer les données d'utilisation du CPU et de la mémoire
+def collect_usage_data():
+    current_time = datetime.now()
+    start_time = current_time - timedelta(hours=1)
+    while current_time >= start_time:
+        cpu_percent = psutil.cpu_percent()
+        memory_percent = psutil.virtual_memory().percent
+        timestamp = int(current_time.timestamp())
+
+        db.usage_data.insert_one({
+            'timestamp': timestamp,
+            'cpu_percent': cpu_percent,
+            'memory_percent': memory_percent
+        })
+
+        current_time -= timedelta(minutes=5)
+        time.sleep(1)
+
+# Point de terminaison pour récupérer l'état du CPU
+@bp.route('/etat_cpu', methods=['GET'])
+def get_cpu_state():
+    # Collecter les données d'utilisation du CPU
+    collect_usage_data()
+
+    # Récupérer les données d'état du CPU depuis la collection MongoDB
+    cpu_states = list(db.usage_data.find({}, {'_id': 0, 'timestamp': 1, 'cpu_percent': 1}).sort('timestamp', -1))
+
+    # Formater les données pour les rendre compatibles avec Chart.js
+    cpu_labels = [state['timestamp'] for state in cpu_states]
+    cpu_data = [state['cpu_percent'] for state in cpu_states]
+
+    return jsonify({
+        'labels': cpu_labels,
+        'data': cpu_data
+    })
+
+# Point de terminaison pour récupérer l'état de la mémoire
+@bp.route('/etat_memory', methods=['GET'])
+def get_memory_state():
+    # Collecter les données d'utilisation de la mémoire
+    collect_usage_data()
+
+    # Récupérer les données d'état de la mémoire depuis la collection MongoDB
+    memory_states = list(db.usage_data.find({}, {'_id': 0, 'timestamp': 1, 'memory_percent': 1}).sort('timestamp', -1))
+
+    # Formater les données pour les rendre compatibles avec Chart.js
+    memory_labels = [state['timestamp'] for state in memory_states]
+    memory_data = [state['memory_percent'] for state in memory_states]
+
+    return jsonify({
+        'labels': memory_labels,
+        'data': memory_data
+    })
+
+
+
+@bp.after_request
+def calculate_response_time(response):
+    # Récupérer le temps actuel
+    start_time = time.time()
+    # Calculer le temps de réponse de la requête
+    response_time = time.time() - start_time
+    # Stocker le temps de réponse dans la collection MongoDB
+    server_data.insert_one({'response_time': response_time})
+    return response
+
+@bp.route('/server/response_time', methods=['GET'])
+@jwt_required()
+def average_response_time():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    # Calcul de la moyenne des temps de réponse
+    total_response_time = 0
+    total_requests = 0
+
+    for entry in server_data.find():
+        total_response_time += entry['response_time']
+        total_requests += 1
+
+    if total_requests > 0:
+        average_time = total_response_time / total_requests
+    else:
+        average_time = 0
+
+    return jsonify({'average_response_time': average_time}), 200
+
+
+from flask import request
+
+# Connexion à la base de données MongoDB
+
+request_stats = db['request_stats']
+
+# Middleware pour compter les requêtes
+@bp.before_request
+def count_requests():
+    method = request.method
+    request_stats.update_one({'method': method}, {'$inc': {'count': 1}}, upsert=True)
+
+@bp.route('/request_stats', methods=['GET'])
+@jwt_required()
+def request_statistics():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    # Récupérer les statistiques depuis la base de données
+    stats = request_stats.find()
+    server_state = check_server_state()
+    
+    # Créer un dictionnaire pour stocker les statistiques
+    stats_dict = {}
+    for stat in stats:
+        stats_dict[stat['method']] = stat['count']
+
+    # Création de la réponse JSON
+    response = {
+        "request_counts": sum(stats_dict.values()),
+        "GET": stats_dict.get('GET', 0),
+        "POST": stats_dict.get('POST', 0),
+        "PUT": stats_dict.get('PUT', 0),
+        "DELETE": stats_dict.get('DELETE', 0),
+        "average_response_time": 90,
+        "server_status":server_state
+    }
+
+    return jsonify(response), 200
+
+
+
+response_stats = db['response_stats']
+
+# Middleware pour compter les codes de réponse
+@bp.after_request
+def count_responses(response):
+    status_code = response.status_code
+    response_stats.update_one({'status_code': status_code}, {'$inc': {'count': 1}}, upsert=True)
+    return response
+
+@bp.route('/response_statistics', methods=['GET'])
+@jwt_required()
+def response_statistics():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    # Récupérer les statistiques depuis la base de données
+    stats = response_stats.find()
+
+    # Créer un dictionnaire pour stocker les statistiques des codes de réponse
+    response_dict = {}
+    total_responses = 0
+    for stat in stats:
+        response_dict[stat['status_code']] = stat['count']
+        total_responses += stat['count']
+
+    # Création de la réponse JSON
+    response = {}
+    for code, count in response_dict.items():
+        response[str(code)] = count
+    response["response_counts"] = total_responses
+
+    return jsonify(response), 200
+
+
+
+
+def disk_usage_percent():
+    # Obtient l'utilisation du disque
+    disk_usage = psutil.disk_usage('/')
+    # Calcule le pourcentage libre du disque
+    percent_free = disk_usage.free / disk_usage.total * 100
+    return percent_free
+
+# Maintenant, vous pouvez appeler cette fonction où vous voulez récupérer le pourcentage libre du disque.
+
+@bp.route('/disk_usage', methods=['GET'])
+@jwt_required()
+def disk_usage():
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({'username': current_user})
+    if 'admin' not in user['roles']:
+        return jsonify({'message': 'Admin role required'}), 403
+
+    percent_free = disk_usage_percent()
+
+    return jsonify({'disk_usage_percent': percent_free}), 200
 
 
 

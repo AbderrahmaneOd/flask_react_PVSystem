@@ -21,7 +21,7 @@ const Dashboard = () => {
     if (!isLoggedIn) {
       // Redirect to login if user is not logged in
       navigate('/login');
-    } else if (!roles.includes('ai_manager')) {
+    } else if (!roles.includes('')) {
       // If user is not admin
       navigate('/');
     }

@@ -14,7 +14,8 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { useNavigate } from 'react-router-dom';
-
+import HealingIcon from "@mui/icons-material/Healing";
+import CodeIcon from "@mui/icons-material/Code"; 
 const Sidebar = () => {
   const navigate = useNavigate();
 
@@ -60,14 +61,17 @@ const Sidebar = () => {
           </Link>
           <Link to="/admin/listModels" style={{ textDecoration: "none" }}>
             <li>
-              <StoreIcon className="icon" />
+
+              <CodeIcon className="icon" />
               <span>Models</span>
             </li>
           </Link>
-          <li>
-            <CreditCardIcon className="icon" />
-            <span>Orders</span>
-          </li>
+          <Link to="/admin/Metrique" style={{ textDecoration: "none" }}>
+            <li>
+              <HealingIcon className="icon" />
+              <span>Metrique</span>
+            </li>
+          </Link>
           <li>
             <LocalShippingIcon className="icon" />
             <span>Delivery</span>
