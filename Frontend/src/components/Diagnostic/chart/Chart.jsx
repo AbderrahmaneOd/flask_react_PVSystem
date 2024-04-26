@@ -7,31 +7,42 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import "./chart.scss"
+import "./chart.scss";
+import config from "../../../config.json";
 
 const Chart = ({ aspect, title }) => {
   const [data, setData] = useState([]);
+  const [token, setToken] = useState(null); // State pour le token
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:5000/count-by-creation-date",
-          {
-            headers: {
-              Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNDE1MzAwMywianRpIjoiOGZiMWZkYWQtNWU3Yi00NWU5LThkMDAtOWM1YzQ2MTE3NDJhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImJlbGsiLCJuYmYiOjE3MTQxNTMwMDMsImNzcmYiOiJlOTZmMjY5YS0wZTIwLTRlODUtYmJmMy0wYjhlYjY1YWNhZjAiLCJleHAiOjE3MTQxNjAyMDN9.Hte8o_QqcoFCRNHpJ77tgDZ4SLt1SaxsVD9z-vssqdw",
-            },
-          }
-        );
-        const jsonData = await response.json();
-        setData(jsonData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/count-by-creation-date`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const jsonData = await response.json();
+      setData(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <div className="chart">
