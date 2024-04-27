@@ -49,10 +49,10 @@ const Sidebar = () => {
           </Link>
 
           <p className="title">LISTS</p>
-          <Link to="/admin/users" style={{ textDecoration: "none" }}>
+          <Link to="/researcher/Contactez-nous" style={{ textDecoration: "none" }}>
             <li>
               <PersonOutlineIcon className="icon" />
-              <span>Users</span>
+              <span>Contactez-nous</span>
             </li>
           </Link>
           <p className="title">USEFUL</p>

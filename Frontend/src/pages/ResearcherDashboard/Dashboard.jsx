@@ -6,6 +6,7 @@ import SidebarResearcher from "../../components/sidebar/SidebarResearcher";
 import Navbar from "../../components/navbar/Navbar";
 import "./Dashboard.scss";
 import Stepper from "../../components/steps/Steps";
+import ContactUsForm from '../../components/Reclamation/ContactUsForm';
 
 
 const Dashboard = () => {
@@ -36,8 +37,15 @@ const Dashboard = () => {
               <Stepper />
             </>
           } />
+          <Route path="/Contactez-nous" element={
+            <>
+              <ContactUsForm />
+            </>
+          } />
 
         </Routes>
+
+        
       </div>
     </div>
   );

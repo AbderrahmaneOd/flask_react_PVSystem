@@ -12,6 +12,7 @@ import AIManagerDashboard from "./pages/AIManagerDashboard/Dashboard"
 import { Routes, Route } from 'react-router-dom';
 import PieChart from "./components/Diagnostic/PieChart";
 import ListModels from "./components/modelsManagement/ListModels";
+import ContactUsForm from "./components/Reclamation/ContactUsForm";
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
         <Routes>
 
        
+        <Route path="/rec" element={<ContactUsForm/>} />
 
 
           
