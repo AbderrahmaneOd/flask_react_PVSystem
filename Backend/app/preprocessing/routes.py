@@ -409,3 +409,68 @@ def get_data_type():
         return jsonify(data_types), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/missing-rows', methods=['POST'])
+def process_missing_rows():
+    try:
+        data = request.json 
+        
+        # Filter out rows with empty action
+        data = [item for item in data if item['action']]
+        
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+
+        # Convert cursor to a DataFrame
+        df = pd.DataFrame(list(cursor))
+        
+        # Convert 'Timestamp' column to datetime
+        df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+        
+        # Write initial DataFrame to CSV for debugging
+        # df.to_csv('initial_data.csv', sep=',', header=True, index=False)
+        
+        for item in data:
+            timestamp = pd.to_datetime(item['timestamp'])  # Convert timestamp to datetime
+            version = item['version']
+            action = item['action']
+            
+            # Create temporary Series for efficient timestamp addition
+            new_row = pd.DataFrame({'Timestamp': [timestamp], 'version': [version]})
+
+            # Concatenate the Series with the DataFrame (consider inplace=True for efficiency)
+            df = pd.concat([new_row, df], ignore_index=True)
+            
+            #print(new_row)
+            
+            # Sort DataFrame by 'Timestamp' column
+            df.sort_values(by='Timestamp', inplace=True)
+            
+            # Perform action based on the action value
+            if action == 'forwardFill':
+                # Forward fill action
+                df.fillna(method='ffill', inplace=True)
+                #print(f"Forward fill action performed for timestamp: {timestamp}")
+            elif action == 'backwardFill':
+                # Backward fill action
+                df.fillna(method='bfill', inplace=True)
+                #print(f"Backward fill action performed for timestamp: {timestamp}")
+            else:
+                print(f"Unknown action: {action}")
+        
+        # Iterate through DataFrame to insert new documents into MongoDB
+        for index, row in df.iterrows():            
+            for item in data:
+                if row['Timestamp'] == pd.to_datetime(item['timestamp']):
+                    # Convert timestamp to string format
+                    row['Timestamp'] = str(row['Timestamp'])
+                    files_collection.insert_one(row.to_dict())
+                    #print(row.to_dict())
+        
+        # Write final DataFrame to CSV for debugging
+        # df.to_csv('final_data.csv', sep=',', header=True, index=False)
+
+        return jsonify({'message': 'Data processed successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
