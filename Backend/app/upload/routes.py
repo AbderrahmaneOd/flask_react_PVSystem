@@ -65,3 +65,29 @@ def upload_test():
     files_collection.insert_many(data)
 
     return jsonify({'message': 'Data stored in MongoDB'})
+
+
+@bp.route('/columns', methods=['GET'])
+def get_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id' : 0, 'username' : 0})
+
+    if document:
+        # Extract the keys (column names) from the document
+        columns = list(document.keys())
+        return jsonify({'columns': columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404
+    
+@bp.route('/numeric/columns', methods=['GET'])
+def get_numerical_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id': 0, 'username': 0})
+
+    if document:
+        # Filter numerical columns using list comprehension
+        numerical_columns = [col for col, value in document.items() 
+                              if isinstance(value, (int, float))]
+        return jsonify({'columns': numerical_columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404

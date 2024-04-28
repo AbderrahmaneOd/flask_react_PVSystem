@@ -28,12 +28,6 @@ const MissingRowsTable = () => {
 
     const processMissingRows = async () => {
         try {
-            const dataToSendd = missingRows.map(row => ({
-                timestamp: `${row.Year}-${row.Month}-${row.Day} ${row.Hour}:${row.Minute}:00`, // Combine fields to create timestamp
-                version: row.version,
-                action: selectedActions[`${row.Year}-${row.Month}-${row.Day} ${row.Hour}:${row.Minute}`]
-            }));
-
             const dataToSend = missingRows.map(row => ({
                 timestamp: `${row.Year}-${row.Month}-${row.Day} ${row.Hour}:${row.Minute}:00`,
                 version: row.version,
@@ -47,15 +41,14 @@ const MissingRowsTable = () => {
                 return () => clearTimeout(timeoutId);
             }
 
-
-            console.log(dataToSend);
             const response = await axios.post('http://localhost:5000/process/missing-rows', dataToSend);
             console.log(response.data);
 
             // Handle success message
             setSuccessMessage(response.data.message);
+        
         } catch (error) {
-            console.error('Error processing missing rows:', error);
+            //console.error('Error processing missing rows:', error);
             // Handle error message
             setError('Error processing missing rows');
             const timeoutId = setTimeout(() => setError(''), 2000);

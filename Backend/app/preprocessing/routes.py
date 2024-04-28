@@ -3,6 +3,7 @@ from flask import request, jsonify
 from pymongo import MongoClient
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
 # Connect to MongoDB
@@ -239,18 +240,6 @@ def calculate_statistics_v2(data):
         "Variance": variance,
     }
 
-
-@bp.route('/columns', methods=['GET'])
-def get_columns():
-    # Retrieve a document from the collection
-    document = files_collection.find_one({}, {'_id' : 0, 'username' : 0})
-
-    if document:
-        # Extract the keys (column names) from the document
-        columns = list(document.keys())
-        return jsonify({'columns': columns}), 200
-    else:
-        return jsonify({'error': 'No documents found in the collection'}), 404
     
 @bp.route('/delete/columns', methods=['POST'])
 def delete_columns():
@@ -472,5 +461,73 @@ def process_missing_rows():
         # df.to_csv('final_data.csv', sep=',', header=True, index=False)
 
         return jsonify({'message': 'Data processed successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+@bp.route('/process/normalization', methods=['POST'])
+def process_column_normalization():
+    try:
+        data = request.json 
+
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+        df = pd.DataFrame(list(cursor))
+
+        # Check if data and normalization strategy are provided
+        if 'selectedColumn' not in data or 'normalizationStrategy' not in data:
+            return jsonify({'error': 'selectedColumn and normalizationStrategy are required.'}), 400
+
+        # Check if selected column exists in the DataFrame
+        selected_column = data['selectedColumn']
+        if selected_column not in df.columns:
+            return jsonify({'error': f'Column "{selected_column}" does not exist in the dataset.'}), 400
+
+        # Apply normalization based on the selected strategy
+        normalization_strategy = data['normalizationStrategy']
+
+        scaler = None  # Default value
+        if normalization_strategy == 'manualNormalization':
+            # Check if manual normalization expression is provided
+            if 'manualExpression' not in data:
+                return jsonify({'error': 'manualExpression is required for manual normalization.'}), 400
+            
+            # Get the manual normalization expression
+            manual_expression = data['manualExpression']
+            
+            # Extract the operator and constant from the expression (assuming simple format)
+            operator, constant_str = manual_expression.split(' ')
+            constant = float(constant_str)
+
+            # Apply the operation based on the extracted operator
+            if operator == '*':
+                df[selected_column] = df[selected_column] * constant
+            elif operator == '/':
+                df[selected_column] = df[selected_column] / constant
+            else:
+                return jsonify({'error': 'Invalid operator in manualExpression. Only "*" and "/" are allowed.'}), 400
+
+        elif normalization_strategy == 'standardScaler':
+            scaler = StandardScaler()
+        elif normalization_strategy == 'minMaxScaler':
+            scaler = MinMaxScaler()
+        
+        if scaler is not None:
+            df[selected_column] = scaler.fit_transform(df[selected_column].values.reshape(-1, 1)).flatten()
+
+        
+        # Loop through each row of the DataFrame
+        for index, row in df.iterrows():
+            # Extract the normalized value for the selected column
+            normalized_value = row[selected_column]
+
+            # Update the specific document in MongoDB
+            files_collection.update_one(
+                {'Timestamp': row['Timestamp']}, 
+                {'$set': {selected_column: normalized_value}}
+            )
+
+        return jsonify({'message': 'Data processed successfully'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
