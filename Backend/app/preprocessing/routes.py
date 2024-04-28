@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -526,6 +526,69 @@ def process_column_normalization():
                 {'Timestamp': row['Timestamp']}, 
                 {'$set': {selected_column: normalized_value}}
             )
+
+        return jsonify({'message': 'Data processed successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/encode', methods=['POST'])
+def process_column_ecoding():
+    try:
+        data = request.json 
+
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+        df = pd.DataFrame(list(cursor))
+        
+        # Write initial DataFrame to CSV for debugging
+        df.to_csv('initial_data.csv', sep=',', header=True, index=False)
+        
+        # Check if data and encoding strategy are provided
+        if 'selectedColumn' not in data or 'encodingStrategy' not in data:
+            return jsonify({'error': 'selectedColumn and encodingStrategy are required.'}), 400
+
+        # Check if selected column exists in the DataFrame
+        selected_column = data['selectedColumn']
+        if selected_column not in df.columns:
+            return jsonify({'error': f'Column "{selected_column}" does not exist in the dataset.'}), 400
+
+        # Apply encoding based on the selected strategy
+        encoding_strategy = data['encodingStrategy']
+
+        if encoding_strategy == 'labelEncoding':
+            label_encoder = LabelEncoder()
+            column_to_encode = df[selected_column]
+            column_encoded = label_encoder.fit_transform(column_to_encode)
+            df[selected_column] = column_encoded
+        #elif encoding_strategy == 'oneHotEncoding':
+       #     encoder = OneHotEncoder(sparse=False)
+       #     column_to_encode = np.array(df[selected_column]).reshape(-1, 1)
+       #     encoded_data = encoder.fit_transform(column_to_encode)
+      #      df[selected_column] = encoded_data
+        elif encoding_strategy == 'oneHotEncoding':
+            encoder = OneHotEncoder()
+            encoded_data = encoder.fit_transform(df[[selected_column]]).toarray()
+            # Append the encoded data to the DataFrame
+            df_encoded = pd.concat([df, pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out([selected_column]))], axis=1)
+            df_encoded.to_csv('df_encoded.csv', sep=',', header=True, index=False)
+        else:
+            return jsonify({'error': 'Invalid encoding strategy.'}), 400
+        
+        # Loop through each row of the DataFrame
+        '''for index, row in df.iterrows():
+            # Extract the normalized value for the selected column
+            normalized_value = row[selected_column]
+
+            # Update the specific document in MongoDB
+            files_collection.update_one(
+                {'Timestamp': row['Timestamp']}, 
+                {'$set': {selected_column: normalized_value}}
+            ) '''
+            
+        # Write final DataFrame to CSV for debugging
+        df.to_csv('final_data.csv', sep=',', header=True, index=False)
 
         return jsonify({'message': 'Data processed successfully'}), 200
 

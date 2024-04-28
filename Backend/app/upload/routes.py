@@ -91,3 +91,16 @@ def get_numerical_columns():
         return jsonify({'columns': numerical_columns}), 200
     else:
         return jsonify({'error': 'No documents found in the collection'}), 404
+    
+@bp.route('/categorical/columns', methods=['GET'])
+def get_categorical_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id': 0, 'username': 0})
+
+    if document:
+        # Filter categorical columns using list comprehension
+        categorical_columns = [col for col, value in document.items() 
+                              if not isinstance(value, (int, float))]
+        return jsonify({'columns': categorical_columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404
