@@ -18,7 +18,6 @@ const DataNormalization = () => {
         try {
             const response = await fetch('http://localhost:5000/numeric/columns');
             const data = await response.json();
-            //console.log(data);
             setColumns(data.columns);
         } catch (error) {
             console.error('Error fetching columns:', error);
@@ -49,19 +48,18 @@ const DataNormalization = () => {
                 manualExpression : manualExpression
             };
 
-            //console.log('Selected Columns:', selectedColumn);
-            //console.log('Normalization Strategy:', normalizationStrategy);
             console.log(dataToSend);
 
-            //const response = await axios.post('http://localhost:5000/process/normalization', dataToSend);
+            const response = await axios.post('http://localhost:5000/process/normalization', dataToSend);
 
             // Handle success message
-           // setSuccessMessage(response.data.message);
-           // const timeoutId = setTimeout(() => setSuccessMessage(''), 3000);
-          //  return () => clearTimeout(timeoutId);
+           setSuccessMessage(response.data.message);
+            const timeoutId = setTimeout(() => setSuccessMessage(''), 3000);
+          return () => clearTimeout(timeoutId);
 
         } catch (error) {
-            //console.error('Error processing:', error);
+            console.error('Error processing:', error);
+            
             // Handle error message
             setError('Error processing');
             const timeoutId = setTimeout(() => setError(''), 2000);
@@ -83,12 +81,12 @@ const DataNormalization = () => {
                     <option value="">Select</option>
                     {columns.map((columnName, index) => (
 
-                        <option value={columnName}>{columnName}</option>
+                        <option key={columnName} value={columnName}>{columnName}</option>
                     ))}
                 </select>
             </div>
             <div>
-                <label htmlFor="field-select" className="mr-2">Select Columns to Normalize</label>
+                <label htmlFor="field-select" className="mr-2">Select Strategy</label>
                 <select onChange={handleStrategySelect}>
                     <option value="">Select Strategy</option>
                     <option value="minMaxScaler">MinMaxScaler</option>

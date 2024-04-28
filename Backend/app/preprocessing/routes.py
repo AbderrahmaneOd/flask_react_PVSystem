@@ -543,7 +543,7 @@ def process_column_ecoding():
         df = pd.DataFrame(list(cursor))
         
         # Write initial DataFrame to CSV for debugging
-        df.to_csv('initial_data.csv', sep=',', header=True, index=False)
+        #df.to_csv('initial_data.csv', sep=',', header=True, index=False)
         
         # Check if data and encoding strategy are provided
         if 'selectedColumn' not in data or 'encodingStrategy' not in data:
@@ -561,34 +561,37 @@ def process_column_ecoding():
             label_encoder = LabelEncoder()
             column_to_encode = df[selected_column]
             column_encoded = label_encoder.fit_transform(column_to_encode)
+            # Add a new column with the encoded values
+            encoded_column_name = f'{selected_column}_encoded'
+            df[encoded_column_name] = column_encoded
             df[selected_column] = column_encoded
-        #elif encoding_strategy == 'oneHotEncoding':
-       #     encoder = OneHotEncoder(sparse=False)
-       #     column_to_encode = np.array(df[selected_column]).reshape(-1, 1)
-       #     encoded_data = encoder.fit_transform(column_to_encode)
-      #      df[selected_column] = encoded_data
         elif encoding_strategy == 'oneHotEncoding':
             encoder = OneHotEncoder()
             encoded_data = encoder.fit_transform(df[[selected_column]]).toarray()
-            # Append the encoded data to the DataFrame
-            df_encoded = pd.concat([df, pd.DataFrame(encoded_data, columns=encoder.get_feature_names_out([selected_column]))], axis=1)
-            df_encoded.to_csv('df_encoded.csv', sep=',', header=True, index=False)
+            encoded_columns = encoder.get_feature_names_out([selected_column])
+            df = pd.concat([df, pd.DataFrame(encoded_data, columns=encoded_columns)], axis=1)
         else:
             return jsonify({'error': 'Invalid encoding strategy.'}), 400
         
         # Loop through each row of the DataFrame
-        '''for index, row in df.iterrows():
-            # Extract the normalized value for the selected column
-            normalized_value = row[selected_column]
-
-            # Update the specific document in MongoDB
-            files_collection.update_one(
-                {'Timestamp': row['Timestamp']}, 
-                {'$set': {selected_column: normalized_value}}
-            ) '''
-            
+        for index, row in df.iterrows():
+            # Extract the encoded value for the selected column
+            encoded_value = row[selected_column]
+            if encoding_strategy == 'labelEncoding':
+                files_collection.update_one(
+                    {'Timestamp': row['Timestamp']}, 
+                    {'$set': {f'{selected_column}_encoded': encoded_value}}
+                )
+            elif encoding_strategy == 'oneHotEncoding':
+                encoded_value = [row[col_name] for col_name in encoded_columns]
+                for col_name, col_value in zip(encoded_columns, encoded_value):
+                    files_collection.update_one(
+                        {'Timestamp': row['Timestamp']}, 
+                        {'$set': {col_name: col_value}}
+                    )
+                        
         # Write final DataFrame to CSV for debugging
-        df.to_csv('final_data.csv', sep=',', header=True, index=False)
+        # df.to_csv('final_data.csv', sep=',', header=True, index=False)
 
         return jsonify({'message': 'Data processed successfully'}), 200
 

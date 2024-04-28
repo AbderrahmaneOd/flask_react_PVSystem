@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const DataEncoding = () => {
-    const [encodedData, setEncodedData] = useState(null);
     const [selectedColumn, setselectedColumn] = useState('');
     const [columns, setColumns] = useState([]);
     const [encodingStrategy, setEncodingStrategy] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         fetchData();
@@ -40,15 +41,27 @@ const DataEncoding = () => {
             // Prepare data to send
             const dataToSend = {
                 selectedColumn: selectedColumn,
-                encodingStrategy : encodingStrategy,
-                //manualExpression: manualExpression
+                encodingStrategy: encodingStrategy,
             };
-            //const response = await axios.post('http://localhost:5000/process/encode', {});
-            //setEncodedData(response.data);
 
             console.log(dataToSend);
+
+            const response = await axios.post('http://localhost:5000/process/encode', dataToSend);
+
+            
+            
+            // Handle success message
+            setSuccessMessage(response.data.message);
+            const timeoutId = setTimeout(() => setSuccessMessage(''), 3000);
+            return () => clearTimeout(timeoutId);
+        
         } catch (error) {
             console.error('Error encoding data:', error);
+            
+            // Handle error message
+            setError('Error processing');
+            const timeoutId = setTimeout(() => setError(''), 2000);
+            return () => clearTimeout(timeoutId);
         }
     };
 
@@ -66,7 +79,7 @@ const DataEncoding = () => {
                 </select>
             </div>
             <div>
-                <label htmlFor="field-select" className="mr-2">Select Columns to Normalize</label>
+                <label htmlFor="field-select" className="mr-2">Select Strategy</label>
                 <select onChange={handleStrategySelect}>
                     <option value="">Select Strategy</option>
                     <option value="labelEncoding">Label Encoding</option>
@@ -76,6 +89,22 @@ const DataEncoding = () => {
             <div className="mt-4">
                 <button onClick={handleEncode} className="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded">Process</button>
             </div>
+
+            {successMessage && (
+                <div className="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong className="font-bold">Success!</strong>
+                    <span className="block sm:inline"> {successMessage}</span>
+                </div>
+            )}
+
+            {error && (
+                <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span className="block sm:inline">
+                        <strong className="font-bold">Error!</strong>
+                        <span className="block sm:inline"> {error}</span>
+                    </span>
+                </div>
+            )}
         </div>
     );
 };
