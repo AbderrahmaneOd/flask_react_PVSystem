@@ -597,3 +597,53 @@ def process_column_ecoding():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/drop_outliers', methods=['POST'])
+def drop_outliers():
+    # Get request data
+    data = request.get_json()
+    column_name = data.get('selectedColumn')
+    min_value = data.get('min')
+    max_value = data.get('max')
+    
+    # Check if all required parameters are provided
+    if not column_name:
+        return jsonify({'error': 'Column name is required!'}), 400
+
+    # Convert min and max values to float if provided
+    if min_value:
+        try:
+            min_value = float(min_value)
+        except ValueError:
+            return jsonify({'error': 'Invalid min value!'}), 400
+    if max_value:
+        try:
+            max_value = float(max_value)
+        except ValueError:
+            return jsonify({'error': 'Invalid max value!'}), 400
+
+    # Update MongoDB collection
+    try:
+        query = {}
+        or_conditions = []
+
+        if min_value is not None:
+            or_conditions.append({column_name: {'$lt': min_value}})
+        if max_value is not None:
+            or_conditions.append({column_name: {'$gt': max_value}})
+
+        if not or_conditions:
+            return jsonify({'error': 'At least one value (Min or Max) must be provided!'}), 400
+
+        query['$or'] = or_conditions
+
+        # Remove values outside the specified interval
+        result = files_collection.delete_many(query)
+        
+        # Get the number of documents deleted
+        deleted_count = result.deleted_count
+        
+        return jsonify({'message': f'{deleted_count} rows removed successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
