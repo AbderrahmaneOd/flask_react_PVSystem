@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder
+from ENSAJ_MultiOutliersDetection import  detect_outliers
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -645,5 +646,53 @@ def drop_outliers():
         deleted_count = result.deleted_count
         
         return jsonify({'message': f'{deleted_count} rows removed successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+@bp.route('/multivariate/outliers', methods=['GET'])
+def get_outliers_data():
+    try:
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+        df = pd.DataFrame(list(cursor))
+
+        # Perform your data manipulation
+        df['Active_Power'] = df['Active_Power'] * 1000 / df['area']
+        df['rating'] = df['rating'] * 1000 / df['area']
+
+        # Detect outliers
+        df_borders, inliers_all = detect_outliers(df, 'version', 'Global_Horizontal_Radiation', 'Active_Power', 'rating', [0.05,0.1,0.15,0.2], [20,30,50,150])
+        data_fil = df.loc[inliers_all]
+
+        # Prepare the data for the response
+        response_data = {
+            'inliers_x': [],
+            'inliers_y': [],
+            'outliers_x': [],
+            'outliers_y': []
+        }
+
+        # Update the response data with inliers and outliers
+        for version in data_fil['version'].unique():
+            dt = data_fil[data_fil['version'] == version]
+            df_vr = df[df['version'] == version]
+
+            # List of tuples (ghi, power) for inliers
+            inliers_list = list(zip(dt['Global_Horizontal_Radiation'], dt['Active_Power']))
+            # List of tuples (ghi, power) for all points
+            all_points_list = list(zip(df_vr['Global_Horizontal_Radiation'], df_vr['Active_Power']))
+            
+            # Extract inliers and outliers
+            inliers = [point for point in inliers_list]
+            outliers = [point for point in all_points_list if point not in inliers_list]
+
+            # Append the points to the respective lists
+            response_data['inliers_x'].extend([float(ghi) for ghi, _ in inliers])
+            response_data['inliers_y'].extend([float(power) for _, power in inliers])
+            response_data['outliers_x'].extend([float(ghi) for ghi, _ in outliers])
+            response_data['outliers_y'].extend([float(power) for _, power in outliers])
+
+        return jsonify(response_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

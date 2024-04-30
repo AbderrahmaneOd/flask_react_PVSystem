@@ -53,7 +53,7 @@ def upload_test():
     df = pd.read_csv(uploaded_file)
 
     # Drop the first column (Unnamed column)
-    df = df.iloc[:, 1:]
+    # df = df.iloc[:, 1:]
 
     # Add the username column to the DataFrame
     df['username'] = username
