@@ -696,3 +696,38 @@ def get_outliers_data():
         return jsonify(response_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/column/merging', methods=['POST'])
+def process_column_merging():
+    try:
+        # Get request data
+        data = request.get_json()
+        selected_column = data.get('selectedColumn')
+        first_column = data.get('firstColumn')
+        second_column = data.get('secondColumn')
+        operator = data.get('operator')
+        
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {first_column: 1, second_column: 1, selected_column: 1, '_id': 0, 'Timestamp' : 1})
+        df = pd.DataFrame(list(cursor))
+
+        # Perform your data manipulation
+        if operator == '/':
+            df[selected_column] = df[first_column] / df[second_column]
+        elif operator == '*':
+            df[selected_column] = df[first_column] * df[second_column]
+        else:
+            return jsonify({'error': 'Invalid operator specified'}), 400
+        
+        # Update MongoDB collection with the modified DataFrame
+        for index, row in df.iterrows():
+            files_collection.update_one({'Timestamp': row['Timestamp']}, {'$set': {selected_column: row[selected_column]}}, upsert=False)
+        
+        # Write final DataFrame to CSV for debugging
+        # df.to_csv('final_data.csv', sep=',', header=True, index=False)
+        
+        return jsonify({'message': 'Data processed successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+

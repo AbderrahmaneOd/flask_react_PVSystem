@@ -3,6 +3,7 @@ import MissingRowsTable from '../scripts/MissingRowsTable'
 import DataNormalization from '../scripts/DataNormalization'
 import DataEncoding from '../scripts/DataEncoding'
 import UnivariateOutliers from '../scripts/UnivariateOutliersHandler'
+import DataReduction from '../scripts/DataReduction'
 
 export default function Preprocessing() {
 
@@ -13,6 +14,7 @@ export default function Preprocessing() {
       <UnivariateOutliers />
       <DataNormalization />
       <DataEncoding />
+      <DataReduction />
     </div>
   );
 }
