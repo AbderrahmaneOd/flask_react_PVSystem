@@ -1,8 +1,8 @@
 from app.upload import bp
-from flask import request, jsonify
+from flask import request, jsonify, send_file, make_response
 from pymongo import MongoClient
 import pandas as pd
-
+import io
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -104,3 +104,26 @@ def get_categorical_columns():
         return jsonify({'columns': categorical_columns}), 200
     else:
         return jsonify({'error': 'No documents found in the collection'}), 404
+    
+
+@bp.route('/download/csv', methods=['GET'])
+def download_csv():
+    try:
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0})
+        df = pd.DataFrame(list(cursor))
+
+        # Convert DataFrame to CSV
+        csv_data = df.to_csv(index=False)
+
+        # Create a bytes IO buffer
+        buffer = io.BytesIO()
+        buffer.write(csv_data.encode())
+        buffer.seek(0)
+
+        # Create a Flask response object
+        response = make_response(send_file(buffer, mimetype='text/csv'))
+        response.headers['Content-Disposition'] = 'attachment; filename=data.csv'
+        return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
