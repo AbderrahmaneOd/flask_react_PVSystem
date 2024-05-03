@@ -3,7 +3,9 @@ from flask import request, jsonify
 from pymongo import MongoClient
 import pandas as pd
 import numpy as np
-
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, OrdinalEncoder
+from ENSAJ_MultiOutliersDetection import  detect_outliers
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -239,18 +241,6 @@ def calculate_statistics_v2(data):
         "Variance": variance,
     }
 
-
-@bp.route('/columns', methods=['GET'])
-def get_columns():
-    # Retrieve a document from the collection
-    document = files_collection.find_one({}, {'_id' : 0, 'username' : 0})
-
-    if document:
-        # Extract the keys (column names) from the document
-        columns = list(document.keys())
-        return jsonify({'columns': columns}), 200
-    else:
-        return jsonify({'error': 'No documents found in the collection'}), 404
     
 @bp.route('/delete/columns', methods=['POST'])
 def delete_columns():
@@ -474,3 +464,270 @@ def process_missing_rows():
         return jsonify({'message': 'Data processed successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+@bp.route('/process/normalization', methods=['POST'])
+def process_column_normalization():
+    try:
+        data = request.json 
+
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+        df = pd.DataFrame(list(cursor))
+
+        # Check if data and normalization strategy are provided
+        if 'selectedColumn' not in data or 'normalizationStrategy' not in data:
+            return jsonify({'error': 'selectedColumn and normalizationStrategy are required.'}), 400
+
+        # Check if selected column exists in the DataFrame
+        selected_column = data['selectedColumn']
+        if selected_column not in df.columns:
+            return jsonify({'error': f'Column "{selected_column}" does not exist in the dataset.'}), 400
+
+        # Apply normalization based on the selected strategy
+        normalization_strategy = data['normalizationStrategy']
+
+        scaler = None  # Default value
+        if normalization_strategy == 'manualNormalization':
+            # Check if manual normalization expression is provided
+            if 'manualExpression' not in data:
+                return jsonify({'error': 'manualExpression is required for manual normalization.'}), 400
+            
+            # Get the manual normalization expression
+            manual_expression = data['manualExpression']
+            
+            # Extract the operator and constant from the expression (assuming simple format)
+            operator, constant_str = manual_expression.split(' ')
+            constant = float(constant_str)
+
+            # Apply the operation based on the extracted operator
+            if operator == '*':
+                df[selected_column] = df[selected_column] * constant
+            elif operator == '/':
+                df[selected_column] = df[selected_column] / constant
+            else:
+                return jsonify({'error': 'Invalid operator in manualExpression. Only "*" and "/" are allowed.'}), 400
+
+        elif normalization_strategy == 'standardScaler':
+            scaler = StandardScaler()
+        elif normalization_strategy == 'minMaxScaler':
+            scaler = MinMaxScaler()
+        
+        if scaler is not None:
+            df[selected_column] = scaler.fit_transform(df[selected_column].values.reshape(-1, 1)).flatten()
+
+        
+        # Loop through each row of the DataFrame
+        for index, row in df.iterrows():
+            # Extract the normalized value for the selected column
+            normalized_value = row[selected_column]
+
+            # Update the specific document in MongoDB
+            files_collection.update_one(
+                {'Timestamp': row['Timestamp']}, 
+                {'$set': {selected_column: normalized_value}}
+            )
+
+        return jsonify({'message': 'Data processed successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/encode', methods=['POST'])
+def process_column_ecoding():
+    try:
+        data = request.json 
+
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+        df = pd.DataFrame(list(cursor))
+        
+        # Write initial DataFrame to CSV for debugging
+        #df.to_csv('initial_data.csv', sep=',', header=True, index=False)
+        
+        # Check if data and encoding strategy are provided
+        if 'selectedColumn' not in data or 'encodingStrategy' not in data:
+            return jsonify({'error': 'selectedColumn and encodingStrategy are required.'}), 400
+
+        # Check if selected column exists in the DataFrame
+        selected_column = data['selectedColumn']
+        if selected_column not in df.columns:
+            return jsonify({'error': f'Column "{selected_column}" does not exist in the dataset.'}), 400
+
+        # Apply encoding based on the selected strategy
+        encoding_strategy = data['encodingStrategy']
+
+        if encoding_strategy == 'labelEncoding':
+            label_encoder = LabelEncoder()
+            column_to_encode = df[selected_column]
+            column_encoded = label_encoder.fit_transform(column_to_encode)
+            # Add a new column with the encoded values
+            encoded_column_name = f'{selected_column}_encoded'
+            df[encoded_column_name] = column_encoded
+            df[selected_column] = column_encoded
+        elif encoding_strategy == 'oneHotEncoding':
+            encoder = OneHotEncoder()
+            encoded_data = encoder.fit_transform(df[[selected_column]]).toarray()
+            encoded_columns = encoder.get_feature_names_out([selected_column])
+            df = pd.concat([df, pd.DataFrame(encoded_data, columns=encoded_columns)], axis=1)
+        else:
+            return jsonify({'error': 'Invalid encoding strategy.'}), 400
+        
+        # Loop through each row of the DataFrame
+        for index, row in df.iterrows():
+            # Extract the encoded value for the selected column
+            encoded_value = row[selected_column]
+            if encoding_strategy == 'labelEncoding':
+                files_collection.update_one(
+                    {'Timestamp': row['Timestamp']}, 
+                    {'$set': {f'{selected_column}_encoded': encoded_value}}
+                )
+            elif encoding_strategy == 'oneHotEncoding':
+                encoded_value = [row[col_name] for col_name in encoded_columns]
+                for col_name, col_value in zip(encoded_columns, encoded_value):
+                    files_collection.update_one(
+                        {'Timestamp': row['Timestamp']}, 
+                        {'$set': {col_name: col_value}}
+                    )
+                        
+        # Write final DataFrame to CSV for debugging
+        # df.to_csv('final_data.csv', sep=',', header=True, index=False)
+
+        return jsonify({'message': 'Data processed successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/drop_outliers', methods=['POST'])
+def drop_outliers():
+    # Get request data
+    data = request.get_json()
+    column_name = data.get('selectedColumn')
+    min_value = data.get('min')
+    max_value = data.get('max')
+    
+    # Check if all required parameters are provided
+    if not column_name:
+        return jsonify({'error': 'Column name is required!'}), 400
+
+    # Convert min and max values to float if provided
+    if min_value:
+        try:
+            min_value = float(min_value)
+        except ValueError:
+            return jsonify({'error': 'Invalid min value!'}), 400
+    if max_value:
+        try:
+            max_value = float(max_value)
+        except ValueError:
+            return jsonify({'error': 'Invalid max value!'}), 400
+
+    # Update MongoDB collection
+    try:
+        query = {}
+        or_conditions = []
+
+        if min_value is not None:
+            or_conditions.append({column_name: {'$lt': min_value}})
+        if max_value is not None:
+            or_conditions.append({column_name: {'$gt': max_value}})
+
+        if not or_conditions:
+            return jsonify({'error': 'At least one value (Min or Max) must be provided!'}), 400
+
+        query['$or'] = or_conditions
+
+        # Remove values outside the specified interval
+        result = files_collection.delete_many(query)
+        
+        # Get the number of documents deleted
+        deleted_count = result.deleted_count
+        
+        return jsonify({'message': f'{deleted_count} rows removed successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+@bp.route('/multivariate/outliers', methods=['GET'])
+def get_outliers_data():
+    try:
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0, 'username': 0})
+        df = pd.DataFrame(list(cursor))
+
+        # Perform your data manipulation
+        df['Active_Power'] = df['Active_Power'] * 1000 / df['area']
+        df['rating'] = df['rating'] * 1000 / df['area']
+
+        # Detect outliers
+        df_borders, inliers_all = detect_outliers(df, 'version', 'Global_Horizontal_Radiation', 'Active_Power', 'rating', [0.05,0.1,0.15,0.2], [20,30,50,150])
+        data_fil = df.loc[inliers_all]
+
+        # Prepare the data for the response
+        response_data = {
+            'inliers_x': [],
+            'inliers_y': [],
+            'outliers_x': [],
+            'outliers_y': []
+        }
+
+        # Update the response data with inliers and outliers
+        for version in data_fil['version'].unique():
+            dt = data_fil[data_fil['version'] == version]
+            df_vr = df[df['version'] == version]
+
+            # List of tuples (ghi, power) for inliers
+            inliers_list = list(zip(dt['Global_Horizontal_Radiation'], dt['Active_Power']))
+            # List of tuples (ghi, power) for all points
+            all_points_list = list(zip(df_vr['Global_Horizontal_Radiation'], df_vr['Active_Power']))
+            
+            # Extract inliers and outliers
+            inliers = [point for point in inliers_list]
+            outliers = [point for point in all_points_list if point not in inliers_list]
+
+            # Append the points to the respective lists
+            response_data['inliers_x'].extend([float(ghi) for ghi, _ in inliers])
+            response_data['inliers_y'].extend([float(power) for _, power in inliers])
+            response_data['outliers_x'].extend([float(ghi) for ghi, _ in outliers])
+            response_data['outliers_y'].extend([float(power) for _, power in outliers])
+
+        return jsonify(response_data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route('/process/column/merging', methods=['POST'])
+def process_column_merging():
+    try:
+        # Get request data
+        data = request.get_json()
+        selected_column = data.get('selectedColumn')
+        first_column = data.get('firstColumn')
+        second_column = data.get('secondColumn')
+        operator = data.get('operator')
+        
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {first_column: 1, second_column: 1, selected_column: 1, '_id': 0, 'Timestamp' : 1})
+        df = pd.DataFrame(list(cursor))
+
+        # Perform your data manipulation
+        if operator == '/':
+            df[selected_column] = df[first_column] / df[second_column]
+        elif operator == '*':
+            df[selected_column] = df[first_column] * df[second_column]
+        else:
+            return jsonify({'error': 'Invalid operator specified'}), 400
+        
+        # Update MongoDB collection with the modified DataFrame
+        for index, row in df.iterrows():
+            files_collection.update_one({'Timestamp': row['Timestamp']}, {'$set': {selected_column: row[selected_column]}}, upsert=False)
+        
+        # Write final DataFrame to CSV for debugging
+        # df.to_csv('final_data.csv', sep=',', header=True, index=False)
+        
+        return jsonify({'message': 'Data processed successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+

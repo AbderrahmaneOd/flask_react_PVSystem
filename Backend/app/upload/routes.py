@@ -1,8 +1,8 @@
 from app.upload import bp
-from flask import request, jsonify
+from flask import request, jsonify, send_file, make_response
 from pymongo import MongoClient
 import pandas as pd
-
+import io
 
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -53,7 +53,7 @@ def upload_test():
     df = pd.read_csv(uploaded_file)
 
     # Drop the first column (Unnamed column)
-    df = df.iloc[:, 1:]
+    # df = df.iloc[:, 1:]
 
     # Add the username column to the DataFrame
     df['username'] = username
@@ -65,3 +65,65 @@ def upload_test():
     files_collection.insert_many(data)
 
     return jsonify({'message': 'Data stored in MongoDB'})
+
+
+@bp.route('/columns', methods=['GET'])
+def get_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id' : 0, 'username' : 0})
+
+    if document:
+        # Extract the keys (column names) from the document
+        columns = list(document.keys())
+        return jsonify({'columns': columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404
+    
+@bp.route('/numeric/columns', methods=['GET'])
+def get_numerical_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id': 0, 'username': 0})
+
+    if document:
+        # Filter numerical columns using list comprehension
+        numerical_columns = [col for col, value in document.items() 
+                              if isinstance(value, (int, float))]
+        return jsonify({'columns': numerical_columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404
+    
+@bp.route('/categorical/columns', methods=['GET'])
+def get_categorical_columns():
+    # Retrieve a document from the collection
+    document = files_collection.find_one({}, {'_id': 0, 'username': 0})
+
+    if document:
+        # Filter categorical columns using list comprehension
+        categorical_columns = [col for col, value in document.items() 
+                              if not isinstance(value, (int, float))]
+        return jsonify({'columns': categorical_columns}), 200
+    else:
+        return jsonify({'error': 'No documents found in the collection'}), 404
+    
+
+@bp.route('/download/csv', methods=['GET'])
+def download_csv():
+    try:
+        # Retrieve data from MongoDB
+        cursor = files_collection.find({}, {'_id': 0})
+        df = pd.DataFrame(list(cursor))
+
+        # Convert DataFrame to CSV
+        csv_data = df.to_csv(index=False)
+
+        # Create a bytes IO buffer
+        buffer = io.BytesIO()
+        buffer.write(csv_data.encode())
+        buffer.seek(0)
+
+        # Create a Flask response object
+        response = make_response(send_file(buffer, mimetype='text/csv'))
+        response.headers['Content-Disposition'] = 'attachment; filename=data.csv'
+        return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

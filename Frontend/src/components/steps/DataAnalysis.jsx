@@ -11,6 +11,8 @@ import UnivariateOutliersWrapper from '../charts/UnivariateOutliersWrapper'
 import CorrelationHeatmap from '../charts/CorrelationHeatmap'
 import CorrelationBarChart from './../charts/CorrelationBarChart'
 import FeatureTypeTable from './../scripts/FeatureTypeTable'
+import MultivariateOutliers from './../charts/MultivariateOutliersScatterPlot'
+
 
 export default function VisualizeStatistics() {
   const [chartData, setChartData] = useState([]);
@@ -18,10 +20,11 @@ export default function VisualizeStatistics() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+
         const dataToSend = { username: localStorage.getItem('username') };
         const response = await axios.post('http://localhost:5000/files', dataToSend);
         setChartData(response.data);
-        //console.log(response.data);
+
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -32,14 +35,15 @@ export default function VisualizeStatistics() {
 
   return (
     <div className="flex flex-col space-y-6">
-      
+
       <StatisticsTable />
       <FeatureTypeTable />
       <NaNValues />
       <UnivariateOutliersWrapper />
+      {/* <MultivariateOutliers /> */}
       <CorrelationHeatmap />
       <CorrelationBarChart />
-      <CorrelationScatterPlot data={chartData}/>
+      <CorrelationScatterPlot data={chartData} />
       <DataEntriesByArray data={chartData} />
       <DataEntiesByTime data={chartData} />
       <DataDistribution data={chartData} />
