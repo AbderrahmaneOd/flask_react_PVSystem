@@ -4,6 +4,7 @@ import DataNormalization from '../scripts/DataNormalization'
 import DataEncoding from '../scripts/DataEncoding'
 import UnivariateOutliers from '../scripts/UnivariateOutliersHandler'
 import DataReduction from '../scripts/DataReduction'
+import DataFiltering from '../scripts/DataFiltering'
 
 export default function Preprocessing() {
 
@@ -15,6 +16,7 @@ export default function Preprocessing() {
       <DataNormalization />
       <DataEncoding />
       <DataReduction />
+      <DataFiltering />
     </div>
   );
 }

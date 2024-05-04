@@ -127,3 +127,9 @@ def download_csv():
         return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+    
+@bp.route("/getUniqueValues/<column>")
+def get_unique_values(column):
+    unique_values = files_collection.distinct(column)
+    return jsonify({"uniqueValues": unique_values})

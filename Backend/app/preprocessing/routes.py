@@ -731,3 +731,31 @@ def process_column_merging():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@bp.route('/process/filtering', methods=['POST'])
+def data_filtering():
+    # Get request data
+    data = request.get_json()
+    column_name = data.get('selectedColumn')
+    deletion_criteria = data.get('deletionCriteria')
+
+    # Check if required data is present
+    if not column_name or not deletion_criteria:
+        return jsonify({'error': 'Missing data in request payload'}), 400
+        
+    try:
+        column_type = files_collection.find_one().get(column_name).__class__
+        
+        if column_type == int:
+            deletion_criteria = int(deletion_criteria)
+        elif column_type == float:
+            deletion_criteria = float(deletion_criteria)
+            
+        # Remove documents matching the deletion criteria
+        result = files_collection.delete_many({column_name: deletion_criteria})
+        
+        # Get the number of documents deleted
+        deleted_count = result.deleted_count
+        
+        return jsonify({'message': f'{deleted_count} rows removed successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
