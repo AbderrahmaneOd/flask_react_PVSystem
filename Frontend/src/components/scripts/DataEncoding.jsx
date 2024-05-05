@@ -48,29 +48,27 @@ const DataEncoding = () => {
 
             const response = await axios.post('http://localhost:5000/process/encode', dataToSend);
 
-            
-            
+
+
             // Handle success message
             setSuccessMessage(response.data.message);
             const timeoutId = setTimeout(() => setSuccessMessage(''), 3000);
-            return () => clearTimeout(timeoutId);
-        
+
         } catch (error) {
             console.error('Error encoding data:', error);
-            
+
             // Handle error message
             setError('Error processing');
             const timeoutId = setTimeout(() => setError(''), 2000);
-            return () => clearTimeout(timeoutId);
         }
     };
 
     return (
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Data Encoding</h2>
-            <div>
+            <div className="mb-4 mr-4">
                 <label htmlFor="field-select" className="mr-2">Select Columns to Encode</label>
-                <select onChange={handleColumnSelect}>
+                <select onChange={handleColumnSelect} className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-500">
                     <option value="">Select</option>
                     {columns.map((columnName, index) => (
 
@@ -78,9 +76,10 @@ const DataEncoding = () => {
                     ))}
                 </select>
             </div>
-            <div>
+            
+            <div className="mb-4 mr-4">
                 <label htmlFor="field-select" className="mr-2">Select Strategy</label>
-                <select onChange={handleStrategySelect}>
+                <select onChange={handleStrategySelect} className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-500">
                     <option value="">Select Strategy</option>
                     <option value="labelEncoding">Label Encoding</option>
                     <option value="oneHotEncoding">One-Hot Encoding</option>

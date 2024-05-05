@@ -32,7 +32,7 @@ const About = () => {
             <h2 className="text-4xl text-neutralDGrey font-semibold mb-4 md:w-4/5 text-justify">
             Plateforme  Intégrée pour la Prédiction et la Visualisation de l'Énergie Solaire
             </h2>
-            <p class="md:w-3/4 text-sm text-neutralGrey mb-8 text-justify">
+            <p className="md:w-3/4 text-sm text-neutralGrey mb-8 text-justify">
               Notre solution offre une plateforme intégrée permettant l'importation efficace des données, suivie d'un prétraitement avancé des données, réalisable en temps réel ou en mode hors ligne. Nous nous spécialisons dans la prédiction précise de l'énergie solaire, fournissant des analyses pertinentes et des visualisations percutantes pour faciliter la prise de décision. De plus, notre système génère automatiquement des rapports détaillés pour chaque opération, offrant une transparence et une traçabilité complètes tout au long du processus. Avec notre solution, optimisez vos opérations énergétiques avec confiance et efficacité.
             </p>
             <Link to="/register">

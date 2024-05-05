@@ -45,7 +45,7 @@ const DataNormalization = () => {
             const dataToSend = {
                 selectedColumn: selectedColumn,
                 normalizationStrategy: normalizationStrategy,
-                manualExpression : manualExpression
+                manualExpression: manualExpression
             };
 
             console.log(dataToSend);
@@ -53,17 +53,15 @@ const DataNormalization = () => {
             const response = await axios.post('http://localhost:5000/process/normalization', dataToSend);
 
             // Handle success message
-           setSuccessMessage(response.data.message);
+            setSuccessMessage(response.data.message);
             const timeoutId = setTimeout(() => setSuccessMessage(''), 3000);
-          return () => clearTimeout(timeoutId);
 
         } catch (error) {
             console.error('Error processing:', error);
-            
+
             // Handle error message
             setError('Error processing');
             const timeoutId = setTimeout(() => setError(''), 2000);
-            return () => clearTimeout(timeoutId);
         }
 
     };
@@ -75,9 +73,9 @@ const DataNormalization = () => {
     return (
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Data Normalization</h2>
-            <div>
+            <div className="mb-4 mr-4">
                 <label htmlFor="field-select" className="mr-2">Select Columns to Normalize</label>
-                <select onChange={handleColumnSelect}>
+                <select onChange={handleColumnSelect} className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-500">
                     <option value="">Select</option>
                     {columns.map((columnName, index) => (
 
@@ -85,9 +83,9 @@ const DataNormalization = () => {
                     ))}
                 </select>
             </div>
-            <div>
+            <div className="mb-4 mr-4">
                 <label htmlFor="field-select" className="mr-2">Select Strategy</label>
-                <select onChange={handleStrategySelect}>
+                <select onChange={handleStrategySelect} className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:border-blue-500">
                     <option value="">Select Strategy</option>
                     <option value="minMaxScaler">MinMaxScaler</option>
                     <option value="standardScaler">StandardScaler</option>
