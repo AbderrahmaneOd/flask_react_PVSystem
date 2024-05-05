@@ -115,7 +115,7 @@ def process_NaNvalues():
         #print(nan_values)
 
         # Retrieve all documents in the collection
-        cursor = files_collection.find({})
+        cursor = files_collection.find({}, {'username': 0})
 
         # Convert cursor to a list of dictionaries
         files_data = list(cursor)
@@ -128,12 +128,8 @@ def process_NaNvalues():
             if method == 'mean':
                 df[column].fillna(df[column].mean(), inplace=True)
             elif method == 'median':
-                # Sort the data before using median
-                df.sort_values(by=[column], inplace=True)
                 df[column].fillna(df[column].median(), inplace=True)
             elif method == 'mode':
-                # Sort the data before using median
-                df.sort_values(by=[column], inplace=True)
                 df[column].fillna(df[column].mode()[0], inplace=True)
             elif method == 'forwardFill':
                 df[column].fillna(method='ffill', inplace=True)
@@ -141,8 +137,10 @@ def process_NaNvalues():
                 df[column].fillna(method='bfill', inplace=True)
             elif method == 'deleteRow':
                 df.dropna(subset=[column], inplace=True)
+                files_collection.delete_many({column: {"$exists": True, "$ne": None}})
             elif method == 'deleteColumn':
                 df.drop(columns=[column], inplace=True)
+                files_collection.update_many({}, {'$unset': {column: ''}})
             else:  # For numerical constant values
                 value = float(method)
                 df[column].fillna(value, inplace=True)

@@ -4,7 +4,7 @@ import axios from 'axios';
 const NaNvalueHandler = () => {
     const [defaultValues, setDefaultValues] = useState({});
     const [inputValues, setInputValues] = useState({});
-    const [fillMethods, setFillMethods] = useState({}); // State to store fill methods for each column
+    const [fillMethods, setFillMethods] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
@@ -52,10 +52,14 @@ const NaNvalueHandler = () => {
 
     const processNaNValues = async () => {
         try {
+
+            console.log(inputValues);
+
             const response = await axios.post('http://localhost:5000/process/nanvalues', inputValues);
-            console.log(response.data);
+            
             setSuccessMessage(response.data.message);
-            //console.log(inputValues);
+            const timeoutId = setTimeout(() => setSuccessMessage(''), 3000);
+            
         } catch (error) {
             console.error('Error processing NaN values:', error);
         }
@@ -76,7 +80,7 @@ const NaNvalueHandler = () => {
                         </tr>
                     </thead>
                     {Object.keys(defaultValues).map(columnName => (
-                        <tbody  key={columnName} className="bg-white divide-y divide-gray-200">
+                        <tbody key={columnName} className="bg-white divide-y divide-gray-200">
                             <tr>
                                 <td className="border-0">
                                     <label htmlFor={columnName}>{columnName}</label>
@@ -84,12 +88,12 @@ const NaNvalueHandler = () => {
                                 <td className="border-0">
                                     <input
                                         type="text"
-                                        value={inputValues[columnName]}
+                                        //value={inputValues[columnName]}
                                         onChange={(e) => handleInputValueChange(columnName, e.target.value)}
                                     />
                                 </td>
                                 <td>
-                                    <select value={fillMethods[columnName]} onChange={(e) => handleFillMethodChange(columnName, e.target.value)}>
+                                    <select value={inputValues[columnName]} onChange={(e) => handleInputValueChange(columnName, e.target.value)}>
                                         <option value="">Select</option>
                                         <option value="mean">Mean</option>
                                         <option value="median">Median</option>
@@ -97,14 +101,14 @@ const NaNvalueHandler = () => {
                                     </select>
                                 </td>
                                 <td>
-                                    <select value={fillMethods[columnName]} onChange={(e) => handleFillMethodChange(columnName, e.target.value)}>
+                                    <select value={inputValues[columnName]} onChange={(e) => handleInputValueChange(columnName, e.target.value)}>
                                         <option value="">Select</option>
                                         <option value="forwardFill">Forward Fill</option>
                                         <option value="backwardFill">Backward Fill</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select value={fillMethods[columnName]} onChange={(e) => handleFillMethodChange(columnName, e.target.value)}>
+                                    <select value={inputValues[columnName]} onChange={(e) => handleInputValueChange(columnName, e.target.value)}>
                                         <option value="">Select</option>
                                         <option value="deleteRow">Delete Row</option>
                                         <option value="deleteColumn">Delete Column</option>
