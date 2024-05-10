@@ -8,6 +8,7 @@ import Preprocessing from "./Preprocessing";
 import Prediction from "./Prediction";
 import Visualisation from "./Visualisation";
 import DataAnalysis from "./DataAnalysis"
+import DataSplitting from "./DataSplitting"
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -16,6 +17,7 @@ function App() {
     "Upload",
     "Data Analysis & Statistics",
     "Preprocessing",
+    "Data Splitting",
     "Prediction",
     "Visualisation",
   ];
@@ -29,8 +31,10 @@ function App() {
       case 3:
         return <Preprocessing />;
       case 4:
-        return <Prediction />;
+        return <DataSplitting />;
       case 5:
+        return <Prediction />;
+      case 6:
         return <Visualisation />;
       default:
     }

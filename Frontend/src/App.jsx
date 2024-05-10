@@ -13,6 +13,10 @@ import PieChart from "./components/Diagnostic/PieChart";
 import ListModels from "./components/modelsManagement/ListModels";
 import ContactUsForm from "./components/Reclamation/ContactUsForm";
 
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 function App() {
 
 
