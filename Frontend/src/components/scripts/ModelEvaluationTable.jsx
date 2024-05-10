@@ -44,18 +44,18 @@ const ModelEvaluation = () => {
     return (
         <div className="p-4 border-1 border-dashed border-emerald-600 rounded-2xl">
             <h2 className="text-lg font-bold mb-4">Prediction</h2>
-            <div>
+            <div className="mb-4 mr-4">
                 <select
                     value={selectedModel}
                     onChange={handleModelChange}
-                    className="mr-4 px-5 py-1 border border-gray-300 rounded"
+                    className="mr-4 border border-gray-300 rounded"
                 >
                     <option value="">Select Model</option>
                     {models.map(model => (
                         <option key={model.modelName} value={model.modelName}>{model.modelName}</option>
                     ))}
                 </select>
-                <button onClick={handlePredict} className="px-4 py-2 bg-blue-500 text-white rounded">
+                <button onClick={handlePredict} className="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded">
                     Predict
                 </button>
             </div>
