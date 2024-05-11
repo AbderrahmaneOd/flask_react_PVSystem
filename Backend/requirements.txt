@@ -1,0 +1,13 @@
+ENSAJ_MultiOutliersDetection==1.0
+Flask==3.0.3
+Flask_Cors==4.0.0
+Flask_JWT_Extended==4.6.0
+matplotlib==3.7.1
+numpy==1.24.2
+pandas==2.0.0
+psutil==5.9.4
+pymongo==4.6.2
+scikit_learn==1.2.2
+tensorflow==2.15.0
+tensorflow_intel==2.15.0
+Werkzeug==3.0.3
