@@ -1,4 +1,4 @@
-# Project Title
+# PV System
 
 This project is a full-stack application with a frontend built using React and a backend built using Flask. The frontend and backend are organized into separate folders within this repository.
 
