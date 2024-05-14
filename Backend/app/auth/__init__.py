@@ -588,7 +588,8 @@ def get_all_models():
             model_info = {
                 'modelName': filename[:-3],
                 'fileSize': get_file_size(file_stat.st_size),
-                'dateAdded': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d')
+                'dateAdded': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d'),
+                'numberParametres': 11
             }
             models_info.append(model_info)
     return jsonify(models_info)

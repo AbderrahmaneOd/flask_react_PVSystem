@@ -40,13 +40,10 @@ def get_model_score():
     # Calculate NMAE
     nmae = mae*100/df["Active_Power"].mean()
 
-    # Calculate R-squared (R2) score
-    r2 = r2_score(df["Active_Power"], df["Active_Power_pred"])
-
     # Calculate MAPE
     mape=mean_absolute_percentage_error(df["Active_Power"], df["Active_Power_pred"])
 
-    return jsonify({'RMSE': rmse, 'MSE': mse, 'MAE': mae, 'R2': r2, 'MAPE': mape, 'NMAE': nmae})
+    return jsonify({'MAE': mae, 'NMAE': nmae, 'RMSE': rmse, 'NRMSE': nrmse, 'MAPE': mape})
 
 
 @bp.route('/api/maev1', methods=['POST'])

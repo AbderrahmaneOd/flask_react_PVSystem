@@ -7,28 +7,28 @@ export default function Prediction() {
 
   return (
     <div className="flex flex-col">
-      <div class="flex items-center justify-center mb-4">
-        <label class="mr-4 cursor-pointer">
+      <div className="flex items-center justify-center mb-4">
+        <label className="mr-4 cursor-pointer">
           <input
             type="radio"
             value="test"
             checked={mode === 'test'}
             onChange={() => setMode('test')}
-            class="hidden"
+            className="hidden"
           />
-          <span class="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded {{ mode === 'test' ? 'bg-blue-500 text-white' : '' }}">
+          <span className="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded {{ mode === 'test' ? 'bg-blue-500 text-white' : '' }}">
             Evaluation
           </span>
         </label>
-        <label class="cursor-pointer">
+        <label className="cursor-pointer">
           <input
             type="radio"
             value="training"
             checked={mode === 'training'}
             onChange={() => setMode('training')}
-            class="hidden"
+            className="hidden"
           />
-          <span class="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded {{ mode === 'training' ? 'bg-blue-500 text-white' : '' }}">
+          <span className="hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-1 border-blue-500 hover:border-transparent rounded {{ mode === 'training' ? 'bg-blue-500 text-white' : '' }}">
             Training
           </span>
         </label>
