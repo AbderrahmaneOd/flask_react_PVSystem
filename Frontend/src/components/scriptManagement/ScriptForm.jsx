@@ -1,83 +1,91 @@
 import config from "../../config.json";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "./ModelForm.css";
+import "./ScriptForm.css";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
-const ModelForm = () => {
+const ScriptForm = () => {
   const navigate = useNavigate();
-  const { modelName } = useParams();
-  const [model, setModel] = useState({
-    modelName: "",
+  const { scriptName } = useParams();
+  const [script, setScript] = useState({
+    scriptName: "",
     file: null,
   });
   const { isAdmin, isManager } = useAuth();
-  const basePath = isAdmin ? "/admin/Listmodels" : isManager ? "/manager/Listmodels" : "";
-
-
+  const basePath = isAdmin ? "/admin/listScripts" : isManager ? "/manager/listScripts" : "";
   useEffect(() => {
-    if (modelName && modelName !== "new") {
-      const fetchModel = async () => {
+    if (scriptName && scriptName !== "new") {
+      const fetchScript = async () => {
         try {
           const token = localStorage.getItem('token');
-          const { data } = await axios.get(`${config.apiUrl}/getModel?modele=${modelName}`, {
+          const { data } = await axios.get(`${config.apiUrl}/getScript?script=${scriptName}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-          setModel(data);
+          setScript(data);
         } catch (error) {
-          console.error("Error:", error);
+          console.error("Error fetching script:", error);
         }
       };
-      fetchModel();
+      fetchScript();
     }
-  }, [modelName]);
+  }, [scriptName]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setModel((prevState) => ({
+    setScript((prevState) => ({
       ...prevState,
       [name]: name === 'file' ? files[0] : value,
     }));
+    console.log('Updated script state:', script);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('modelName', model.modelName);
-      formData.append('file', model.file);
-      
-      const token = localStorage.getItem('token'); 
-      if (modelName === "new") {
-        const response = await axios.post(`${config.apiUrl}/uploadModel`, formData, {
+      formData.append('scriptName', script.scriptName);
+      formData.append('file', script.file);
+
+      console.log('Submitting form with the following data:');
+      console.log('Script Name:', script.scriptName);
+      console.log('File:', script.file);
+
+      const token = localStorage.getItem('token');
+      if (scriptName === "new") {
+        const response = await axios.post(`${config.apiUrl}/uploadScript`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
-  
-        // Vérification si le nom du modèle existe déjà
-        if (response.data === 'Le nom du modèle existe déjà. Veuillez choisir un autre nom.') {
-          // Afficher un message d'erreur à l'utilisateur
+
+        if (response.data === 'Le nom du script existe déjà. Veuillez choisir un autre nom.') {
           alert(response.data);
-          return; // Arrêter l'exécution de la fonction handleSubmit
+          return;
         }
       } else {
-        await axios.put(`${config.apiUrl}/updateModel?modelName=${modelName}`, formData, {
+        const response = await axios.put(`${config.apiUrl}/updateScript?script=${scriptName}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
+
+        console.log('Update response:', response);
+
+        if (response.status !== 200) {
+          alert('Failed to update script');
+          return;
+        }
       }
       navigate(basePath);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error submitting form:", error);
     }
   };
-  
 
   return (
     <div className="home">
@@ -87,19 +95,19 @@ const ModelForm = () => {
             <form className="post">
               <input
                 type="text"
-                placeholder="Nom du modèle..."
-                name="modelName"
-                value={model.modelName}
+                placeholder="Nom du script..."
+                name="scriptName"
+                value={script.scriptName}
                 onChange={handleChange}
               />
               <input
                 type="file"
-                accept=".h5"
+                accept=".py"
                 name="file"
                 onChange={handleChange}
               />
               <button onClick={handleSubmit} className="btn btn-primary">
-                {modelName === "new" ? "Créer le modèle" : "Mettre à jour le modèle"}
+                {scriptName === "new" ? "Créer le script" : "Mettre à jour le script"}
               </button>
             </form>
           </div>
@@ -109,4 +117,4 @@ const ModelForm = () => {
   );
 };
 
-export default ModelForm;
+export default ScriptForm;

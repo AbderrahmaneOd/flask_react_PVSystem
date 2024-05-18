@@ -9,6 +9,12 @@ import "./Dashboard.scss";
 import Featured from "../../components/featured/Featured";
 import Table from "../../components/table/Table";
 
+import ListModels from "../../components/modelsManagement/ListModels";
+import ModelForm from "../../components/modelsManagement/ModelForm";
+
+
+import ListScripts from "../../components/scriptManagement/ListScripts";
+import ScriptForm from "../../components/scriptManagement/ScriptForm";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,7 +27,7 @@ const Dashboard = () => {
     if (!isLoggedIn) {
       // Redirect to login if user is not logged in
       navigate('/login');
-    } else if (!roles.includes('')) {
+    } else if (!roles.includes('responsableAi')) {
       // If user is not admin
       navigate('/');
     }
@@ -46,6 +52,12 @@ const Dashboard = () => {
             </>
           } />
 
+          <Route path="/listmodels" element={<ListModels />} />
+          <Route path="models/:modelName" element={<ModelForm />} />
+
+
+          <Route path="/listScripts" element={<ListScripts />} />
+          <Route path="scripts/:scriptName" element={<ScriptForm />} />
           
 
         </Routes>

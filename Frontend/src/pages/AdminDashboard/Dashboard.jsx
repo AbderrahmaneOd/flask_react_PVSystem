@@ -13,6 +13,12 @@ import User from '../../components/UserManagement/list/User';
 
 import ModelForm from '../../components/modelsManagement/ModelForm';
 import ListModels from '../../components/modelsManagement/ListModels';
+
+
+import ListScripts from '../../components/scriptManagement/ListScripts';
+import ScriptForm from '../../components/scriptManagement/ScriptForm';
+
+
 import Widget from '../../components/widget/Widget';
 import Widget1 from '../../components/UserStatistiques/UserWidgets/Widget';
 
@@ -124,6 +130,10 @@ const Dashboard = () => {
 
           <Route path="/listmodels" element={<ListModels />} />
           <Route path="models/:modelName" element={<ModelForm />} />
+
+
+          <Route path="/listScripts" element={<ListScripts />} />
+          <Route path="scripts/:scriptName" element={<ScriptForm />} />
 
 
         </Routes>

@@ -20,7 +20,7 @@ const Login = () => {
 
     if (isLoggedIn && roles.includes('admin')) {
       navigate('/admin');
-    } else if (isLoggedIn && roles.includes('ai_manager')) {
+    } else if (isLoggedIn && roles.includes('responsableAi')) {
       navigate('/manager');
     } else if (isLoggedIn && roles.includes('researcher')) {
       navigate('/researcher');
@@ -61,7 +61,7 @@ const Login = () => {
 
       if (roles.includes('admin')) {
         navigate('/admin');
-      } else if (roles.includes('ai_manager')) {
+      } else if (roles.includes('responsableAi')) {
         navigate('/manager');
       } else if (roles.includes('researcher')) {
         navigate('/researcher');

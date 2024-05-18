@@ -62,8 +62,15 @@ const Sidebar = () => {
           <Link to="/admin/listModels" style={{ textDecoration: "none" }}>
             <li>
 
-              <CodeIcon className="icon" />
+              <PsychologyOutlinedIcon className="icon" />
               <span>Models</span>
+            </li>
+          </Link>
+          <Link to="/admin/listScripts" style={{ textDecoration: "none" }}>
+            <li>
+
+              <CodeIcon className="icon" />
+              <span>Scripts</span>
             </li>
           </Link>
           <Link to="/admin/Metrique" style={{ textDecoration: "none" }}>

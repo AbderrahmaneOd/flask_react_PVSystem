@@ -1,50 +1,39 @@
 import config from "../../config.json";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "./ListModels.css";
+import "./ListScripts.css";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
-const ListModels = () => {
+const ListScripts = () => {
   const navigate = useNavigate();
   const { isAdmin, isManager } = useAuth();
-  const [models, setModels] = useState([]);
-  const [modelToDelete, setModelToDelete] = useState(null);
+  const [scripts, setScripts] = useState([]);
 
-  const fetchModels = async () => {
+  const fetchScripts = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${config.apiUrl}/getAllModels`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setModels(res.data);
+      const res = await axios.get(`${config.apiUrl}/getAllScripts`);
+      setScripts(res.data);
     } catch (error) {
-      console.error("Error fetching models:", error);
+      console.error("Error fetching scripts:", error);
     }
   };
 
   useEffect(() => {
-    fetchModels();
+    fetchScripts();
   }, []);
 
-  const handleDelete = async (modelName) => {
+  const handleDelete = async (scriptName) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${config.apiUrl}/deleteModel?modele=${modelName}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setModels(models.filter((model) => model.modelName !== modelName));
+      await axios.delete(`${config.apiUrl}/deleteScript?script=${scriptName}`);
+      setScripts(scripts.filter((script) => script.scriptName !== scriptName));
     } catch (error) {
-      console.error("Error deleting model:", error);
+      console.error("Error deleting script:", error);
     }
   };
 
   // Déterminez le chemin de base en fonction du rôle de l'utilisateur
-  const basePath = isAdmin ? "/admin/models" : isManager ? "/manager/models" : "";
+  const basePath = isAdmin ? "/admin/scripts" : isManager ? "/manager/scripts" : "";
 
   return (
     <div className="home">
@@ -53,37 +42,37 @@ const ListModels = () => {
           <div className="container">
             {(isAdmin || isManager) && (
               <button
-                onClick={() => navigate(`${basePath}/new`)} // Utilisez le chemin de base pour créer un nouveau modèle
+                onClick={() => navigate(`${basePath}/new`)} // Utilisez le chemin de base pour créer un nouveau script
                 className="btn btn-primary mb-4"
               >
-                Nouveau Modèle
+                Nouveau Script
               </button>
             )}
             <table className="table">
               <thead>
                 <tr>
-                  <th>Nom du Modèle</th>
+                  <th>Nom du Script</th>
                   <th>Taille du Fichier</th>
                   <th>Date d'Ajout</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {models.map((model) => (
-                  <tr key={model.modelName}>
-                    <td>{model.modelName}</td>
-                    <td>{model.fileSize.value} {model.fileSize.unit}</td>
-                    <td>{model.dateAdded}</td>
+                {scripts.map((script) => (
+                  <tr key={script.scriptName}>
+                    <td>{script.scriptName}</td>
+                    <td>{script.scriptSize.value} {script.scriptSize.unit}</td>
+                    <td>{script.dateAdded}</td>
                     <td>
                       <button
-                        onClick={() => navigate(`${basePath}/${model.modelName}`)} // Utilisez le chemin de base pour afficher le modèle
+                        onClick={() => navigate(`${basePath}/${script.scriptName}`)} // Utilisez le chemin de base pour afficher le script
                         className="btn btn-info btn-update"
                       >
                         Modifier
                       </button>
                       {(isAdmin || isManager) && (
                         <button
-                          onClick={() => handleDelete(model.modelName)}
+                          onClick={() => handleDelete(script.scriptName)}
                           className="btn btn-danger btn-delete"
                         >
                           Supprimer
@@ -101,4 +90,4 @@ const ListModels = () => {
   );
 };
 
-export default ListModels;
+export default ListScripts;
